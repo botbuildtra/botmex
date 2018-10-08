@@ -254,88 +254,89 @@ class MainClass
                     log("positionContracts " + positionContracts);
                     log("positionPrice " + positionPrice);
 
-                    
 
 
-                    bool _stop = false;
-                    if (positionContracts < 0)
+                    if (operation != "scalper")
                     {
-                        double priceActual = getPriceActual("Buy");
-                        double perc = ((priceActual * 100) / positionPrice) - 100;
-                        log("perc" + perc);
-                        if (perc > 0)
-                            if (perc > stoploss)
-                                _stop = true;
-                    }
+                        bool _stop = false;
+                        if (positionContracts < 0)
+                        {
+                            double priceActual = getPriceActual("Buy");
+                            double perc = ((priceActual * 100) / positionPrice) - 100;
+                            log("perc" + perc);
+                            if (perc > 0)
+                                if (perc > stoploss)
+                                    _stop = true;
+                        }
 
-                    if (positionContracts > 0)
-                    {
-                        double priceActual = getPriceActual("Sell");
-                        double perc = ((priceActual * 100) / positionPrice) - 100;
-                        log("perc" + perc);
-                        if (perc < 0)
-                            if (Math.Abs(perc) > stoploss)
-                                _stop = true;
-                    }
-
-
-                    if (_stop)
-                    {
-                        //Stop loss
-                        log(bitMEXApi.CancelAllOpenOrders(pair));
-                        String side = "Buy";
                         if (positionContracts > 0)
-                            side = "Sell";
+                        {
+                            double priceActual = getPriceActual("Sell");
+                            double perc = ((priceActual * 100) / positionPrice) - 100;
+                            log("perc" + perc);
+                            if (perc < 0)
+                                if (Math.Abs(perc) > stoploss)
+                                    _stop = true;
+                        }
+
+
+                        if (_stop)
+                        {
+                            //Stop loss
+                            log(bitMEXApi.CancelAllOpenOrders(pair));
+                            String side = "Buy";
+                            if (positionContracts > 0)
+                                side = "Sell";
 
 
 
-                        if(side == "Sell")
-                            log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs( positionContracts),true));
-                        if (side == "Buy")
-                            log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts),true));
-                        log("[STOP LOSS] " + pair + " " + side + " " + positionContracts);
-                    }
+                            if (side == "Sell")
+                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
+                            if (side == "Buy")
+                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
+                            log("[STOP LOSS] " + pair + " " + side + " " + positionContracts);
+                        }
 
 
 
 
-                    bool _stopgain = false;
-                    if (positionContracts < 0)
-                    {
-                        double priceActual = getPriceActual("Buy");
-                        double perc = ((priceActual * 100) / positionPrice) - 100;
-                        log("perc" + perc);
-                        if (perc < 0)
-                            if (Math.Abs(perc) > stopgain)
-                                _stopgain = true;
-                    }
+                        bool _stopgain = false;
+                        if (positionContracts < 0)
+                        {
+                            double priceActual = getPriceActual("Buy");
+                            double perc = ((priceActual * 100) / positionPrice) - 100;
+                            log("perc" + perc);
+                            if (perc < 0)
+                                if (Math.Abs(perc) > stopgain)
+                                    _stopgain = true;
+                        }
 
-                    if (positionContracts > 0)
-                    {
-                        double priceActual = getPriceActual("Sell");
-                        double perc = ((priceActual * 100) / positionPrice) - 100;
-                        log("perc" + perc);
-                        if (perc > 0)
-                            if (Math.Abs(perc) > stopgain)
-                                _stopgain = true;
-                    }
-
-
-                    if (_stopgain)
-                    {
-                        //Stop loss
-                        log(bitMEXApi.CancelAllOpenOrders(pair));
-                        String side = "Buy";
                         if (positionContracts > 0)
-                            side = "Sell";
-                        if (side == "Sell")
-                            log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts),true));
-                        if (side == "Buy")
-                            log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts),true));
-                        log("[STOP GAIN] " + pair + " " + side + " " + positionContracts);
-                    }
+                        {
+                            double priceActual = getPriceActual("Sell");
+                            double perc = ((priceActual * 100) / positionPrice) - 100;
+                            log("perc" + perc);
+                            if (perc > 0)
+                                if (Math.Abs(perc) > stopgain)
+                                    _stopgain = true;
+                        }
 
-                  
+
+                        if (_stopgain)
+                        {
+                            //Stop loss
+                            log(bitMEXApi.CancelAllOpenOrders(pair));
+                            String side = "Buy";
+                            if (positionContracts > 0)
+                                side = "Sell";
+                            if (side == "Sell")
+                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
+                            if (side == "Buy")
+                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
+                            log("[STOP GAIN] " + pair + " " + side + " " + positionContracts);
+                        }
+
+                    }
                   
                   
 
@@ -348,7 +349,7 @@ class MainClass
                     //By Carlos Morato
                     #region "Fix position not orders
 
-                    if (operation == "normal" && roeAutomatic && (Math.Abs(getOpenOrderQty()) < Math.Abs(positionContracts)))
+                    if (operation != "surf" && roeAutomatic && (Math.Abs(getOpenOrderQty()) < Math.Abs(positionContracts)))
                     {
                         log("Get Position " + positionContracts);
 
