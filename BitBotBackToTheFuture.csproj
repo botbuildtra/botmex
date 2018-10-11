@@ -42,6 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackTest.cs" />
     <Compile Include="ClassDBcs.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Http.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="indicators\IndicatorPPO.cs" />
     <Compile Include="indicators\IndicatorROC.cs" />
     <Compile Include="indicators\IndicatorRSI.cs" />
+    <Compile Include="indicators\IndicatorCAROL.cs" />
     <Compile Include="indicators\IndicatorSAR.cs" />
     <Compile Include="indicators\IndicatorSTOCH.cs" />
     <Compile Include="indicators\IndicatorSTOCHRSI.cs" />

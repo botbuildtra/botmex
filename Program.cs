@@ -51,7 +51,8 @@ class MainClass
     public static string operation = "normal"; // normal - scalper - surf
     public static bool roeAutomatic = true;
     public static bool usedb = false;
-    
+    public static bool tendencyBook = false;
+
 
     public static double stepValue = 0.5;
     public static TendencyMarket tendencyMarket = TendencyMarket.NORMAL;
@@ -104,7 +105,7 @@ class MainClass
             log("Vamos aguardar 10 min para voce doar ;) ... ", ConsoleColor.Blue);
             log("ATENCAO, PARA FACILITAR A DOACAO DAQUI A 30 SEGUNDOS VAMOS ABRIR UMA PAGINA PARA VOCE!", ConsoleColor.Green);
 
-            System.Diagnostics.Process.Start("https://www.blockchain.com/btc/payment_request?address=1AnttTLGhzJsX7T96SutWS4N9wPYuBThu8&amount_local=30&currency=USD&nosavecurrency=true");
+            //System.Diagnostics.Process.Start("https://www.blockchain.com/btc/payment_request?address=1AnttTLGhzJsX7T96SutWS4N9wPYuBThu8&amount_local=30&currency=USD&nosavecurrency=true");
 
             String jsonConfig = System.IO.File.ReadAllText(location + "key.txt");
             JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
@@ -137,6 +138,7 @@ class MainClass
             stepValue = double.Parse(jCointaner["stepvalue"].ToString());
             stopgain = double.Parse(jCointaner["stopgain"].ToString());
             roeAutomatic = jCointaner["roe"].ToString() == "automatic";
+            tendencyBook = jCointaner["tendencyBook"].ToString() == "enable";
             operation = jCointaner["operation"].ToString();
             limiteOrder = int.Parse(jCointaner["limiteOrder"].ToString());
 
@@ -193,6 +195,7 @@ class MainClass
             lstIndicatorsAll.Add(new IndicatorTRIX());
             lstIndicatorsAll.Add(new IndicatorULTOSC());
             lstIndicatorsAll.Add(new IndicatorWILLR());
+            lstIndicatorsAll.Add(new IndicatorCAROL());
 
             foreach (var item in jCointaner["indicatorsEntry"])
             {
@@ -731,6 +734,13 @@ class MainClass
 
             if (side == "Sell" && statusShort == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
             {
+
+
+                if (tendencyBook)
+                    if (getTendencyOrderBook() != Tendency.low)
+                        return ;
+                
+
                 double price = 0;
 
                 String json = "";
@@ -805,6 +815,12 @@ class MainClass
 
             if (side == "Buy" && statusLong == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
             {
+
+                if (tendencyBook)
+                    if (getTendencyOrderBook() != Tendency.high)
+                        return;
+
+
                 double price = 0;
                 String json = "";
                 if (operation == "surf")
@@ -1103,11 +1119,47 @@ class MainClass
     }
 
 
+
+    public static Tendency getTendencyOrderBook()
+    {
+        try
+        {
+            List<BitMEX.OrderBook> lstOrderBook = bitMEXApi.GetOrderBook(pair, 30);
+            int totalBuy = 0;
+            int totalSell = 0;
+            foreach (var item in lstOrderBook)
+            {
+                if (item.Side == "Buy")
+                    totalBuy += Math.Abs(item.Size);
+                if (item.Side == "Sell")
+                    totalSell += Math.Abs(item.Size);
+            }
+
+
+            log("totalBuy " + totalBuy);
+            log("totalSell " + totalSell);
+
+            if (totalBuy > totalSell)
+                return Tendency.high;
+            else if (totalBuy < totalSell)
+                return Tendency.low;
+            else
+                return Tendency.nothing;
+        }
+        catch
+        {
+            return Tendency.nothing;
+        }
+    }
+
+
+
     public static void tests()
     {
 
-       
-    
+        //    BackTest.run();
+
+      
 
         return;
     }
