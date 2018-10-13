@@ -73,12 +73,14 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
             IndicatorRSI rsi = new IndicatorRSI();
             Operation operationRSI = rsi.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
+            MainClass.log("CCI " + cci.result);
+            MainClass.log("RSI " + rsi.result);
 
-            if (cci.result > 0 && rsi.result > 50)
+            if (cci.result > 0 && operationSAR == Operation.buy && rsi.result > 50)
             {
                 return Operation.buy;
             }
-            if (cci.result < 0 &&  rsi.result < 50)
+            if (cci.result < 0 && operationSAR == Operation.sell && rsi.result < 50)
             {
                 return Operation.sell;
             }

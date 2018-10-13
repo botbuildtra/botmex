@@ -730,7 +730,7 @@ class MainClass
 
             
             log(" wait 5s Make order " + side);
-            
+
 
             if (side == "Sell" && statusShort == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
             {
@@ -738,8 +738,8 @@ class MainClass
 
                 if (tendencyBook)
                     if (getTendencyOrderBook() != Tendency.low)
-                        return ;
-                
+                        return;
+
 
                 double price = 0;
 
@@ -747,17 +747,17 @@ class MainClass
                 if (operation == "surf")
                 {
                     price = Math.Abs(getPriceActual(side)) - 10;
-                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts),true);
+                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true);
                 }
                 else
                 {
-                    price = Math.Abs(getPriceActual(side)) + 0 ;
+                    price = Math.Abs(getPriceActual(side)) + 0;
                     json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts));
                 }
 
                 log(json);
 
-                if (json.ToLower().IndexOf("error") >= 0)
+                if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
                     return;
                 
                 JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
@@ -835,7 +835,7 @@ class MainClass
                 }
 
                 log(json);
-                if (json.ToLower().IndexOf("error") >= 0)
+                if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
                     return;
 
 
