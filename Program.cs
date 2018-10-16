@@ -764,7 +764,7 @@ class MainClass
                 
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
-                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()))
+                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
                     {
                         if (operation=="scalper")
                         {
@@ -844,7 +844,7 @@ class MainClass
                 log("wait total...");
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
-                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()))
+                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
                     {
 
                         if (operation == "scalper")

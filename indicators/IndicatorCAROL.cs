@@ -76,11 +76,11 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
             MainClass.log("CCI " + cci.result);
             MainClass.log("RSI " + rsi.result);
 
-            if (cci.result > 0 && operationSAR == Operation.buy && rsi.result > 50)
+            if (cci.result > 0 && operationSAR == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high)
             {
                 return Operation.buy;
             }
-            if (cci.result < 0 && operationSAR == Operation.sell && rsi.result < 50)
+            if (cci.result < 0 && operationSAR == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low)
             {
                 return Operation.sell;
             }
