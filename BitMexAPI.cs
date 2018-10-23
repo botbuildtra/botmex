@@ -269,7 +269,7 @@ namespace BitMEX
             param["symbol"] = symbol;
             param["count"] = count.ToString();
             param["reverse"] = true.ToString();
-            param["partial"] = "true";
+            param["partial"] = "false";
             param["binSize"] = size;
             string res = Query("GET", "/trade/bucketed", param);
             return JsonConvert.DeserializeObject<List<Candle>>(res).OrderByDescending(a => a.TimeStamp).ToList();

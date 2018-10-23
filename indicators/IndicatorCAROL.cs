@@ -43,29 +43,31 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
 
     public double[] arrayresultTA;
 
+
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
+    {
+        Operation op1 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
+        Console.WriteLine("sleep 10s");
+        System.Threading.Thread.Sleep(10000);
+        Operation op2 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
+        Console.WriteLine("sleep 10s");
+        System.Threading.Thread.Sleep(10000);
+        Operation op3 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
+
+
+        if (op1 == op2 && op2 == op3)
+            return op1;
+        else
+            return Operation.nothing;
+
+    }
+
+    public Operation GetOperationDetail(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
         try
         {
-            Operation operationSAR = Operation.nothing;
-
-            
-            int outBegidx, outNbElement;            
-            arrayresultTA = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Sar(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, 0.02, 0.2, out outBegidx, out outNbElement, arrayresultTA);            
-            double value = arrayresultTA[outNbElement - 1];
-            double lastValue = arrayresultTA[outNbElement - 2];
-            double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
-            this.result = value;
-            this.result2 = lastValue;
-            if (value < priceClose )
-                operationSAR = Operation.buy;
-            else if (value > priceClose )
-                operationSAR =  Operation.sell;
-            else
-                operationSAR = Operation.nothing;
-
-
+            IndicatorMACD macd = new IndicatorMACD();
+            Operation operationMACD = macd.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);            
 
             IndicatorCCI cci = new IndicatorCCI();
             Operation operationCCI = cci.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
@@ -76,11 +78,11 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
             MainClass.log("CCI " + cci.result);
             MainClass.log("RSI " + rsi.result);
 
-            if (cci.result > 0 && operationSAR == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high)
+            if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high)
             {
                 return Operation.buy;
             }
-            if (cci.result < 0 && operationSAR == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low)
+            if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low)
             {
                 return Operation.sell;
             }

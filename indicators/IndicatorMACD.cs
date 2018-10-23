@@ -51,15 +51,15 @@ public class IndicatorMACD : IndicatorBase, IIndicator
             int outBegidx, outNbElement;
             double[] macdSignal = new double[arrayPriceClose.Length];
             double[] macdHist = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Macd(0, arrayPriceClose.Length - 1, arrayPriceClose, 20, 50, 9, out outBegidx, out outNbElement, arrayresultTA, macdSignal, macdHist);
+            TicTacTec.TA.Library.Core.Macd(0, arrayPriceClose.Length - 1, arrayPriceClose, 12, 26, 9, out outBegidx, out outNbElement, arrayresultTA, macdSignal, macdHist);
             double macd = arrayresultTA[outNbElement - 1];
             double signal = macdSignal[outNbElement - 1];
             double macdHistory = macdHist[outNbElement - 1];
             this.result = macd;
             this.result2 = signal;
-            if ((macd - signal) < 0)
+            if (macdHistory < 0)
                 return Operation.sell;
-            if ((macd - signal) > 0)
+            if (macdHistory > 0)
                 return Operation.buy;
 
             return Operation.nothing;
