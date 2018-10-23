@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorCAROL: IndicatorBase, IIndicator
+public class IndicatorCAROL : IndicatorBase, IIndicator
 {
 
     public IndicatorCAROL()
@@ -55,10 +55,16 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
         Operation op3 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
 
-        if (op1 == op2 && op2 == op3)
-            return op1;
-        else
-            return Operation.nothing;
+        double diffCandle = Math.Abs((((arrayPriceClose[arrayPriceClose.Length - 1] * 100) / arrayPriceClose[arrayPriceClose.Length - 2]) - 100));
+
+        Console.WriteLine("diffCandle: " + diffCandle + "%");
+
+        if (diffCandle < 0.2)
+            if (op1 == op2 && op2 == op3)
+                return op1;
+
+
+        return Operation.nothing;
 
     }
 
@@ -67,7 +73,7 @@ public class IndicatorCAROL: IndicatorBase, IIndicator
         try
         {
             IndicatorMACD macd = new IndicatorMACD();
-            Operation operationMACD = macd.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);            
+            Operation operationMACD = macd.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
             IndicatorCCI cci = new IndicatorCCI();
             Operation operationCCI = cci.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
