@@ -239,6 +239,14 @@ class MainClass
 
             bool automaticTendency = statusLong == "automatic";
 
+
+            if (operation == "manual")
+            {
+                while (true)
+                    System.Threading.Thread.Sleep(60000);
+            }
+
+
             //LOOP 
             while (true)
             {
@@ -371,7 +379,7 @@ class MainClass
 
                             if (actualPrice > priceContactsProfit)
                             {
-                                double price = actualPrice + 1;
+                                double price = actualPrice + stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -379,7 +387,7 @@ class MainClass
                             }
                             else
                             {
-                                double price = priceContactsProfit;
+                                double price = Math.Abs(getPriceActual(side));
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -397,7 +405,7 @@ class MainClass
 
                             if (actualPrice < priceContactsProfit)
                             {
-                                double price = actualPrice - 1;
+                                double price = actualPrice - stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -405,7 +413,7 @@ class MainClass
                             }
                             else
                             {
-                                double price = priceContactsProfit;
+                                double price = Math.Abs(getPriceActual(side));
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -428,6 +436,7 @@ class MainClass
                         verifyTendency();
 
                     //GET CANDLES
+                    bool nothing = false;
                     if (getCandles())
                     {
 
@@ -452,6 +461,7 @@ class MainClass
                                 if (operationBuy != Operation.buy)
                                 {
                                     operation = "nothing";
+                                    nothing = true;
                                     break;
                                 }
                             }
@@ -582,6 +592,7 @@ class MainClass
                                 if (operationBuy != Operation.sell)
                                 {
                                     operation = "nothing";
+                                    nothing = true;
                                     break;
                                 }
                             }
@@ -689,6 +700,26 @@ class MainClass
                         }
 
                     }
+
+
+
+                    //condicao
+                    if (nothing && operation == "scalper")
+                    {
+                        if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) == 0)
+                        {
+                            makeOrder("Buy", true);
+                            makeOrder("Sell", true);
+                            log("wait " + 60000 * 5 + "ms", ConsoleColor.Blue);
+                            Thread.Sleep(60000 * 5);
+                            if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) > 0)
+                                bitMEXApi.CancelAllOpenOrders(pair);
+                        }
+                    }
+
+
+
+
                     log("wait " + interval + "ms", ConsoleColor.Blue);
                     Thread.Sleep(interval);
                 
@@ -722,7 +753,7 @@ class MainClass
     }
 
 
-    static void makeOrder(string side)
+    static void makeOrder(string side,bool nothing = false)
     {
         bool execute = false;
         try
@@ -730,7 +761,15 @@ class MainClass
 
             
             log(" wait 5s Make order " + side);
+            double price = 0;
+            String json = "";
 
+            if (nothing)
+            {
+                price = Math.Abs(getPriceActual(side));                
+                json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts)/2);
+                return;
+            }
 
             if (side == "Sell" && statusShort == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
             {
@@ -741,9 +780,9 @@ class MainClass
                         return;
 
 
-                double price = 0;
+                
 
-                String json = "";
+                
                 if (operation == "surf")
                 {
                     price = Math.Abs(getPriceActual(side)) - 10;
@@ -762,6 +801,7 @@ class MainClass
                 
                 JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                 
+
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
                     if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
@@ -821,8 +861,8 @@ class MainClass
                         return;
 
 
-                double price = 0;
-                String json = "";
+                price = 0;
+                json = "";
                 if (operation == "surf")
                 {
                     price = Math.Abs(getPriceActual(side)) + 10;
