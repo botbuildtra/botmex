@@ -47,11 +47,9 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
         Operation op1 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
-        Console.WriteLine("sleep 10s");
-        System.Threading.Thread.Sleep(10000);
+        Console.WriteLine("sleep 10s");        
         Operation op2 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
-        Console.WriteLine("sleep 10s");
-        System.Threading.Thread.Sleep(10000);
+        Console.WriteLine("sleep 10s");        
         Operation op3 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
 
