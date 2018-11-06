@@ -348,8 +348,8 @@ class MainClass
                         }
 
                     }
-                  
-                  
+
+
 
                     //SEARCH POSITION AND MAKE ORDER
                     //By Carlos Morato
@@ -359,6 +359,9 @@ class MainClass
                     //SEARCH POSITION AND MAKE ORDER
                     //By Carlos Morato
                     #region "Fix position not orders
+
+                    if (operation != "surf" && roeAutomatic && Math.Abs(positionContracts) != Math.Abs(getOpenOrderQty()))
+                        bitMEXApi.CancelAllOpenOrders(pair);
 
                     if (operation != "surf" && roeAutomatic && (Math.Abs(getOpenOrderQty()) < Math.Abs(positionContracts)))
                     {
@@ -379,7 +382,7 @@ class MainClass
 
                             if (actualPrice > priceContactsProfit)
                             {
-                                double price = actualPrice + stepValue;
+                                double price = priceContacts + stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -387,7 +390,7 @@ class MainClass
                             }
                             else
                             {
-                                double price = Math.Abs(getPriceActual(side));
+                                double price = priceContacts + stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -405,7 +408,7 @@ class MainClass
 
                             if (actualPrice < priceContactsProfit)
                             {
-                                double price = actualPrice - stepValue;
+                                double price = priceContacts - stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -413,7 +416,7 @@ class MainClass
                             }
                             else
                             {
-                                double price = Math.Abs(getPriceActual(side));
+                                double price = priceContacts - stepValue;
                                 String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
@@ -428,8 +431,7 @@ class MainClass
                     //CANCEL ORDER WITHOUT POSITION
                     //By Carlos Morato
 
-                    if (operation != "surf" && roeAutomatic && Math.Abs(positionContracts) != Math.Abs(getOpenOrderQty()))
-                        bitMEXApi.CancelAllOpenOrders(pair);
+                    
 
 
                     if (automaticTendency)
@@ -562,8 +564,8 @@ class MainClass
 
 
                             //EXECUTE OPERATION
-                            if (operation == "long")
-                                makeOrder("Buy");
+                            //if (operation == "long")
+                              //  makeOrder("Buy");
 
                             ////////////FINAL VERIFY OPERATION LONG//////////////////
                         }
@@ -693,8 +695,8 @@ class MainClass
 
 
                             //EXECUTE OPERATION
-                            if (operation == "short")
-                                makeOrder("Sell");
+                            //if (operation == "short")
+                              //  makeOrder("Sell");
 
                             ////////////FINAL VERIFY OPERATION LONG//////////////////
                         }
@@ -711,9 +713,8 @@ class MainClass
                             makeOrder("Buy", true);
                             makeOrder("Sell", true);
                             log("wait " + 60000 * 5 + "ms", ConsoleColor.Blue);
-                            Thread.Sleep(60000 * 5);
-                            if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) > 0)
-                                bitMEXApi.CancelAllOpenOrders(pair);
+                            Thread.Sleep(60000 * 5);                                                        
+                            bitMEXApi.CancelAllOpenOrders(pair);
                         }
                     }
 
