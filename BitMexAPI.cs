@@ -216,8 +216,8 @@ namespace BitMEX
             param["side"] = Side;
             param["orderQty"] = Quantity.ToString();
             param["ordType"] = "Limit";
-            //if(!force)
-              //  param["execInst"] = "ParticipateDoNotInitiate";
+            if(!force)
+                param["execInst"] = "ParticipateDoNotInitiate";
             //param["displayQty"] = 1.ToString(); // Shows the order as hidden, keeps us from moving price away from our own orders
             param["price"] = Price.ToString().Replace(",", ".");
             string ret = Query("POST", "/order", param, true);
