@@ -69,8 +69,10 @@
     <Compile Include="indicators\IndicatorSTOCHRSI.cs" />
     <Compile Include="indicators\IndicatorTrix.cs" />
     <Compile Include="indicators\IndicatorULTOSC.cs" />
+    <Compile Include="indicators\IndicatorX.cs" />
     <Compile Include="indicators\IndicatorWILLR.cs" />
     <Compile Include="LogClass.cs" />
+    <Content Include="Program - Copy.txt" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BitMexAPI.cs" />

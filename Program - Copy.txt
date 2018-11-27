@@ -53,8 +53,6 @@ class MainClass
     public static bool usedb = false;
     public static bool tendencyBook = false;
 
-    public static double traillingProfit = -1;
-    public static double traillingStop = -1;
 
     public static double stepValue = 0.5;
     public static TendencyMarket tendencyMarket = TendencyMarket.NORMAL;
@@ -72,7 +70,7 @@ class MainClass
     public static double[] arrayPriceLow = new double[sizeArrayCandles];
     public static double[] arrayPriceVolume = new double[sizeArrayCandles];
     public static double[] arrayPriceOpen = new double[sizeArrayCandles];
-    public static DateTime[] arrayDate = new DateTime[sizeArrayCandles];
+    public static DateTime[] arrayDate= new DateTime[sizeArrayCandles];
 
 
     public static Object data = new Object();
@@ -117,7 +115,7 @@ class MainClass
 
 
             usedb = jCointaner["usedb"].ToString() == "enable";
-
+            
             bitmexKey = jCointaner["key"].ToString();
             bitmexSecret = jCointaner["secret"].ToString();
             bitmexKeyWeb = jCointaner["webserverKey"].ToString();
@@ -262,7 +260,7 @@ class MainClass
                     positionContracts = getPosition(); // FIX CARLOS MORATO                                            
                     double positionPrice = 0;
 
-                    if (positionContracts != 0)
+                    if(positionContracts != 0)
                         positionPrice = getPositionPrice();
 
                     log("positionContracts " + positionContracts);
@@ -270,7 +268,7 @@ class MainClass
 
 
 
-                    if (operation == "scalper")
+                    if (operation != "scalper")
                     {
                         bool _stop = false;
                         if (positionContracts < 0)
@@ -321,18 +319,8 @@ class MainClass
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
                             if (perc < 0)
-                            {
-
-                                if (traillingProfit > Math.Abs(perc))
-                                    if (Math.Abs(perc) > stopgain)
-                                        _stopgain = true;
-
-                                if (Math.Abs(perc) > traillingProfit)
-                                    traillingProfit = Math.Abs(perc);
-
                                 if (Math.Abs(perc) > stopgain)
                                     _stopgain = true;
-                            }
                         }
 
                         if (positionContracts > 0)
@@ -341,17 +329,8 @@ class MainClass
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
                             if (perc > 0)
-                            {
-                                if (traillingProfit > Math.Abs(perc))
-                                    if (Math.Abs(perc) > stopgain)
-                                        _stopgain = true;
-
-                                if (Math.Abs(perc) > traillingProfit)
-                                    traillingProfit = Math.Abs(perc);
-
                                 if (Math.Abs(perc) > stopgain)
                                     _stopgain = true;
-                            }
                         }
 
 
@@ -382,8 +361,8 @@ class MainClass
                     //By Carlos Morato
                     #region "Fix position not orders
 
-                    //if (operation != "surf" && roeAutomatic && Math.Abs(positionContracts) != Math.Abs(getOpenOrderQty()))
-                    //    bitMEXApi.CancelAllOpenOrders(pair);
+                    if (operation != "surf" && roeAutomatic && Math.Abs(positionContracts) != Math.Abs(getOpenOrderQty()))
+                        bitMEXApi.CancelAllOpenOrders(pair);
 
                     if (operation != "surf" && roeAutomatic && (Math.Abs(getOpenOrderQty()) < Math.Abs(positionContracts)))
                     {
@@ -453,7 +432,7 @@ class MainClass
                     //CANCEL ORDER WITHOUT POSITION
                     //By Carlos Morato
 
-
+                    
 
 
                     if (automaticTendency)
@@ -479,7 +458,7 @@ class MainClass
                                 log("Indicator: " + item.getName());
                                 log("Result1: " + item.getResult());
                                 log("Result2: " + item.getResult2());
-                                log("Date: " + arrayDate[arrayPriceOpen.Length - 1]);
+                                log("Date: " + arrayDate[arrayPriceOpen.Length-1]);
                                 log("Operation: " + operationBuy.ToString());
                                 log("");
                                 if (operationBuy != Operation.buy)
@@ -586,8 +565,8 @@ class MainClass
 
 
                             //EXECUTE OPERATION
-                            if (operation == "long")
-                                makeOrder("Buy");
+                            //if (operation == "long")
+                              //  makeOrder("Buy");
 
                             ////////////FINAL VERIFY OPERATION LONG//////////////////
                         }
@@ -717,8 +696,8 @@ class MainClass
 
 
                             //EXECUTE OPERATION
-                            if (operation == "short")
-                                makeOrder("Sell");
+                            //if (operation == "short")
+                              //  makeOrder("Sell");
 
                             ////////////FINAL VERIFY OPERATION LONG//////////////////
                         }
@@ -730,99 +709,13 @@ class MainClass
                     //condicao
                     if (nothing && operation == "scalper")
                     {
-                        Tendency tBook = getTendencyOrderBook();
-                        IndicatorCAROL carol = new IndicatorCAROL();
-                        if (carol.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume) == Operation.nothing)
+                        if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) == 0)
                         {
-                            Thread.Sleep(5000);
-                            getCandles();
-                            if (carol.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume) == Operation.nothing)
-                                if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) == 0)
-                                {
-                                    List<double> lst = arrayPriceClose.OfType<double>().ToList();
-
-                                    log("Tendency Book: " + tBook.ToString());
-                                    log("Min: " + lst.Min());
-                                    log("Avg: " + lst.Average());
-                                    log("Max: " + lst.Max());
-
-                                    double percaux = 0.5;
-                                    double min5 = ((lst.Min() * percaux) / 100) + (lst.Min());
-                                    double max5 = (lst.Max()) - ((lst.Max() * percaux) / 100);
-
-                                    log("Min5: " + min5);
-                                    log("Max5: " + max5);
-                                    if (arrayPriceClose[99] > min5 && arrayPriceClose[99] < max5)
-                                    {
-
-                                        if (tBook == Tendency.high)
-                                        {
-                                            new Thread(() =>
-                                            {
-                                                makeOrder("Buy", true);
-                                            }).Start();
-                                            new Thread(() =>
-                                            {
-                                                makeOrder("Sell", true);
-                                            }).Start();
-                                            Thread.Sleep(5000);
-                                        }
-                                        else if (tBook == Tendency.low)
-                                        {
-                                            new Thread(() =>
-                                            {
-                                                makeOrder("Sell", true);
-                                            }).Start();
-                                            new Thread(() =>
-                                            {
-                                                makeOrder("Buy", true);
-                                            }).Start();
-                                            Thread.Sleep(5000);
-                                        }
-                                        else
-                                        {
-                                            //normal random order
-                                            Random r = new Random();
-                                            if (r.Next(0, 2) == 1)
-                                            {
-                                                new Thread(() =>
-                                                {
-                                                    makeOrder("Buy", true);
-                                                }).Start();
-                                                new Thread(() =>
-                                                {
-                                                    makeOrder("Sell", true);
-                                                }).Start();
-                                                Thread.Sleep(5000);
-                                            }
-                                            else
-                                            {
-
-                                                new Thread(() =>
-                                                {
-                                                    makeOrder("Sell", true);
-                                                }).Start();
-                                                new Thread(() =>
-                                                {
-                                                    makeOrder("Buy", true);
-                                                }).Start();
-                                                Thread.Sleep(5000);
-                                            }
-                                        }
-
-                                        for (int i = 0; i < 20; i++)
-                                        {
-                                            Thread.Sleep(6000);
-                                            if (Math.Abs(getPosition()) > 0)
-                                                break;
-                                        }
-
-
-
-                                        if (Math.Abs(getPosition()) == 0)
-                                            bitMEXApi.CancelAllOpenOrders(pair);
-                                    }
-                                }
+                            makeOrder("Buy", true);
+                            makeOrder("Sell", true);
+                            log("wait " + 60000 * 5 + "ms", ConsoleColor.Blue);
+                            Thread.Sleep(60000 * 5);                                                        
+                            bitMEXApi.CancelAllOpenOrders(pair);
                         }
                     }
 
@@ -831,8 +724,8 @@ class MainClass
 
                     log("wait " + interval + "ms", ConsoleColor.Blue);
                     Thread.Sleep(interval);
-
-
+                
+                
                 }
                 catch (Exception ex)
                 {
@@ -850,7 +743,6 @@ class MainClass
     }
 
 
-
     static bool existsOrderOpenById(string id)
     {
         List<BitMEX.Order> lst = bitMEXApi.GetOpenOrders(pair);
@@ -863,21 +755,21 @@ class MainClass
     }
 
 
-    static void makeOrder(string side, bool nothing = false)
+    static void makeOrder(string side,bool nothing = false)
     {
         bool execute = false;
         try
         {
 
-
+            
             log(" wait 5s Make order " + side);
             double price = 0;
             String json = "";
 
             if (nothing)
             {
-                price = Math.Abs(getPriceActual(side));
-                json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts) / 2);
+                price = Math.Abs(getPriceActual(side));                
+                json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts)/2);
                 return;
             }
 
@@ -890,6 +782,9 @@ class MainClass
                         return;
 
 
+                
+
+                
                 if (operation == "surf")
                 {
                     price = Math.Abs(getPriceActual(side)) - 10;
@@ -897,7 +792,7 @@ class MainClass
                 }
                 else
                 {
-                    price = Math.Abs(getPriceActual(side)) - 10;
+                    price = Math.Abs(getPriceActual(side)) + 0;
                     json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts));
                 }
 
@@ -905,15 +800,15 @@ class MainClass
 
                 if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
                     return;
-
+                
                 JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
-
+                
 
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
                     if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
                     {
-                        if (operation == "scalper")
+                        if (operation=="scalper")
                         {
                             price = price - stepValue;
                         }
@@ -923,31 +818,29 @@ class MainClass
                             price = Math.Abs(Math.Floor(price));
                         }
 
-                        if (operation != "surf")
+                        if(operation!= "surf")
                         {
 
-                            //json = "error";
-                            //while (json.ToLower().IndexOf("error") >= 0)
-                            //{
-                            //    //json = bitMEXApi.PostOrderPostOnly(pair, "Buy", price, Math.Abs(qtdyContacts));
-                            //    //if (json.ToLower().IndexOf("error") >= 0)
-                            //        Thread.Sleep(800);
-                            //}
+                            json = "error";
+                            while (json.ToLower().IndexOf("error") >= 0)
+                            {
+                                json = bitMEXApi.PostOrderPostOnly(pair, "Buy", price, Math.Abs(qtdyContacts));
+                                if (json.ToLower().IndexOf("error") >= 0)
+                                    Thread.Sleep(800);
+                            }
 
                         }
+                            
 
 
 
-                        traillingProfit = -1;
-                        traillingStop = -1;
 
                         log(json);
                         execute = true;
                         break;
                     }
                     log("wait order limit " + i + " of " + intervalCancelOrder + "...");
-                    if (operation != "scalper")
-                        Thread.Sleep(800);
+                    Thread.Sleep(800);
                 }
 
 
@@ -975,11 +868,11 @@ class MainClass
                 if (operation == "surf")
                 {
                     price = Math.Abs(getPriceActual(side)) + 10;
-                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true);
+                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts),true);
                 }
                 else
                 {
-                    price = Math.Abs(getPriceActual(side)) + 10;
+                    price = Math.Abs(getPriceActual(side)) - 0;
                     json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts));
                 }
 
@@ -989,7 +882,7 @@ class MainClass
 
 
                 JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
-
+                
                 log("wait total...");
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
@@ -1008,23 +901,21 @@ class MainClass
 
                         if (operation != "surf")
                         {
-                            //json = "error";
-                            //while (json.ToLower().IndexOf("error") >= 0)
-                            //{
-                            //    json = bitMEXApi.PostOrderPostOnly(pair, "Sell", price, Math.Abs(qtdyContacts));
-                            //    if(json.ToLower().IndexOf("error") >= 0)
-                            //        Thread.Sleep(800);
-                            //}
+                            json = "error";
+                            while (json.ToLower().IndexOf("error") >= 0)
+                            {
+                                json = bitMEXApi.PostOrderPostOnly(pair, "Sell", price, Math.Abs(qtdyContacts));
+                                if(json.ToLower().IndexOf("error") >= 0)
+                                    Thread.Sleep(800);
+                            }
                         }
-                        traillingProfit = -1;
-                        traillingStop = -1;
+
                         log(json);
                         execute = true;
                         break;
                     }
                     log("wait order limit " + i + " of " + intervalCancelOrder + "...");
-                    if (operation != "scalper")
-                        Thread.Sleep(800);
+                    Thread.Sleep(800);
                 }
 
 
@@ -1310,7 +1201,7 @@ class MainClass
 
         //    BackTest.run();
 
-
+      
 
         return;
     }
