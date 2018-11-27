@@ -405,7 +405,7 @@ class MainClass
                             if (actualPrice > priceContactsProfit)
                             {
                                 double price = priceContacts + stepValue;
-                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
+                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts),true);
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
 
@@ -413,7 +413,7 @@ class MainClass
                             else
                             {
                                 double price = priceContacts + stepValue;
-                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
+                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts),true);
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
                             }
@@ -431,7 +431,7 @@ class MainClass
                             if (actualPrice < priceContactsProfit)
                             {
                                 double price = priceContacts - stepValue;
-                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
+                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts),true);
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
 
@@ -439,7 +439,7 @@ class MainClass
                             else
                             {
                                 double price = priceContacts - stepValue;
-                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts));
+                                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts),true);
                                 JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                                 log(json);
 
