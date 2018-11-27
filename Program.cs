@@ -25,7 +25,7 @@ class MainClass
 
 
     //REAL NET
-    public static string version = "0.0.2.12";
+    public static string version = "0.0.2.13";
     public static string location = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\";
 
     public static string bitmexKey = "";
