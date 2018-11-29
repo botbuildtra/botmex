@@ -47,10 +47,6 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
         Operation op1 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
-        Console.WriteLine("sleep 10s");        
-        Operation op2 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
-        Console.WriteLine("sleep 10s");        
-        Operation op3 = GetOperationDetail(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
 
         double diffCandle = Math.Abs((((arrayPriceClose[arrayPriceClose.Length - 1] * 100) / arrayPriceClose[arrayPriceClose.Length - 2]) - 100));
@@ -58,8 +54,7 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
         Console.WriteLine("diffCandle: " + diffCandle + "%");
 
         if (diffCandle < 0.2)
-            if (op1 == op2 && op2 == op3)
-                return op1;
+            return op1;
 
 
         return Operation.nothing;
@@ -84,11 +79,19 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
 
             if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high)
             {
-                return Operation.buy;
+                double[] arrayresultMA = new double[arrayPriceClose.Length];
+                int outBegidx, outNbElement;
+                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 200, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
+                if (arrayresultMA[outNbElement - 1] > arrayresultMA[outNbElement - 10] && arrayPriceClose[arrayPriceClose.Length - 1] > arrayresultMA[outNbElement - 1])
+                    return Operation.buy;
             }
             if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low)
             {
-                return Operation.sell;
+                double[] arrayresultMA = new double[arrayPriceClose.Length];
+                int outBegidx, outNbElement;
+                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 200, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
+                if (arrayresultMA[outNbElement - 1] < arrayresultMA[outNbElement - 10] && arrayPriceClose[arrayPriceClose.Length - 1] < arrayresultMA[outNbElement - 1])
+                    return Operation.sell;
             }
 
             return Operation.nothing;

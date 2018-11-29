@@ -9,6 +9,40 @@ using System.Net.Security;
 public static class Http
 {
 
+    public static string postGeneric(String url, String parameters)
+    {
+        try
+        {
+            // lock (objLock)
+            {
+                
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                var data = Encoding.ASCII.GetBytes(parameters);
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = data.Length;
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+                var response = (HttpWebResponse)request.GetResponse();
+                String result = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+                
+                return result;
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            return null;
+        }
+        finally
+        {
+
+        }
+    }
     public static string get(String url)
     {
         try
