@@ -168,8 +168,12 @@ class MainClass
                 System.Threading.Thread tCapture = new Thread(Database.captureDataJob);
                 tCapture.Start();
                 System.Threading.Thread.Sleep(1000);
-                System.Diagnostics.Process.Start(jCointaner["webserverConfig"].ToString());
-
+                OperatingSystem os = Environment.OSVersion;
+                PlatformID pid = os.Platform;
+                if(pid != PlatformID.Unix)
+                {
+                    System.Diagnostics.Process.Start(jCointaner["webserverConfig"].ToString());
+                }
             }
 
 
