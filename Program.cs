@@ -56,6 +56,8 @@ class MainClass
 
     public static double traillingProfit = -1;
     public static double traillingStop = -1;
+    public static bool carolatr = false;
+    public static int atrvalue = 6;
 
     public static double stepValue = 0.5;
     public static TendencyMarket tendencyMarket = TendencyMarket.NORMAL;
@@ -144,7 +146,8 @@ class MainClass
             tendencyBook = jCointaner["tendencyBook"].ToString() == "enable";
             operation = jCointaner["operation"].ToString();
             limiteOrder = int.Parse(jCointaner["limiteOrder"].ToString());
-
+            carolatr = jCointaner["carolatr"].ToString() == "enable";
+            atrvalue = int.Parse(jCointaner["atrvalue"].ToString());
             bitMEXApi = new BitMEX.BitMEXApi(bitmexKey, bitmexSecret, bitmexDomain);
 
 
@@ -677,6 +680,12 @@ class MainClass
                         {
 
                             IndicatorCAROL carol = new IndicatorCAROL();
+                            if(carolatr)
+                            {
+                                    carol.enableAtr(true);
+                                    carol.setAtr(atrvalue);
+                            }
+
                             Operation _operation = Operation.nothing;
                             _operation = carol.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
                             if (_operation != Operation.nothing)

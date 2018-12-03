@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 public class IndicatorCAROL : IndicatorBase, IIndicator
 {
-
+    private int atr = 6;
+    private bool atrenable = false;
     public IndicatorCAROL()
     {
         this.indicator = this;
@@ -65,6 +66,13 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
     {
         try
         {
+
+            int atr1 = 0;
+            int atr2 = 0;
+            double[] atr3 = new double[arrayPriceClose.Length];
+            TicTacTec.TA.Library.Core.Atr(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, 14, out atr1, out atr2, atr3);
+            double atrVal = atr3[atr2 - 1];
+
             IndicatorMACD macd = new IndicatorMACD();
             Operation operationMACD = macd.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
@@ -76,8 +84,12 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
 
             MainClass.log("CCI " + cci.result);
             MainClass.log("RSI " + rsi.result);
+            if( atrenable)
+            {
+                MainClass.log("ATR " + atrVal);
+            }
 
-            if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high)
+            if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high && ( ( atrenable && atrVal < this.atr ) || !atrenable ) )
             {
                 double[] arrayresultMA = new double[arrayPriceClose.Length];
                 int outBegidx, outNbElement;
@@ -85,7 +97,7 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
                 if (arrayresultMA[outNbElement - 1] > arrayresultMA[outNbElement - 10] && arrayPriceClose[arrayPriceClose.Length - 1] > arrayresultMA[outNbElement - 1])
                     return Operation.buy;
             }
-            if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low)
+            if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low && ((atrenable && atrVal < this.atr) || !atrenable) )
             {
                 double[] arrayresultMA = new double[arrayPriceClose.Length];
                 int outBegidx, outNbElement;
@@ -103,5 +115,15 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setAtr(int atr)
+    {
+        this.atr = atr;
+    }
+
+    public void enableAtr(bool val )
+    {
+        this.atrenable = val;
     }
 }
