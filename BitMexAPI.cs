@@ -214,6 +214,14 @@ namespace BitMEX
             var param = new Dictionary<string, string>();
             param["symbol"] = Symbol;
             param["side"] = Side;
+            if (Symbol.Contains("XBT"))
+            {
+                Price = this.RoundToNearest(Price, 2);
+            }
+            else if (Symbol.Equals("ETHUSD"))
+            {
+                Price = this.RoundToNearest(Price, 20);
+            }
             param["orderQty"] = Quantity.ToString();
             param["ordType"] = "Limit";
             if(!force)
@@ -330,7 +338,13 @@ namespace BitMEX
         }
 
         #endregion RateLimiter
+
+        public Double RoundToNearest(Double val, int multiple)
+        {
+            return Math.Round(val * multiple, MidpointRounding.AwayFromZero) / multiple;
+        }
     }
+
 
     // Working Classes
     public class OrderBook
