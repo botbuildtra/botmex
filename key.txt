@@ -1,0 +1,42 @@
+﻿{  
+   "domain":"https://www.bitmex.com",
+   "key":"",
+   "secret":"",
+   "webserverKey":"",
+   "webserverSecret":"",
+   "usedb":"disable",
+   "dbcon":"",
+   "dbquery":"",
+   "pair":"XBTUSD",
+   "contract":100,
+   "profit":0.1,
+   "fee":0.0001,
+   "limiteOrder":1,
+   "stoploss":4,
+   "stepvalue":0.5,
+   "stopgain":5,
+   "operation":"scalper",
+   "tendencyBook":"denable",
+   "long":"enable",
+   "short":"enable",
+   "roe":"automatic",
+   "interval":14500,
+   "intervalOrder":50000,
+   "timeGraph":"1m",
+   "intervalCancelOrder":200,
+   "webserver":"enable",
+   "webserverConfig":"http://localhost:5555/anubis/",
+   "webserverIntervalCapture":100000,
+   "indicatorsEntry":[  
+      {  
+         "name":"CAROL",
+         "period":14
+      }
+   ],
+   "indicatorsEntryCross":[  
+
+   ],
+   "indicatorsEntryDecision":[  
+
+   ]
+}
