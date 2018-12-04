@@ -800,7 +800,7 @@ class MainClass
             if (nothing)
             {
                 price = Math.Abs(getPriceActual(side));
-                json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts) / 2);
+                json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qtdyContacts));
                 return;
             }
 

@@ -83,12 +83,17 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
             Operation operationRSI = rsi.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
             MainClass.log("CCI " + cci.result);
+            MainClass.log("CCI Tendency: " + cci.getTendency());
             MainClass.log("RSI " + rsi.result);
+            MainClass.log("RSI Tendency: " + rsi.getTendency());
+
             if( atrenable)
             {
                 MainClass.log("ATR " + atrVal);
             }
 
+            Tendency t1 = cci.getTendency();
+            Tendency t2 = rsi.getTendency();
             if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high && ( ( atrenable && atrVal < this.atr ) || !atrenable ) )
             {
                 double[] arrayresultMA = new double[arrayPriceClose.Length];
