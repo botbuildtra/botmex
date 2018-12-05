@@ -28,6 +28,7 @@
    "webserverConfig":"http://localhost:5555/anubis/",
    "webserverIntervalCapture":100000,
    "carolatr": "enable",
+   "atrvalue": 6,
    "indicatorsEntry":[  
       {  
          "name":"CAROL",
