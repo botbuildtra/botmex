@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public class IndicatorCAROL : IndicatorBase, IIndicator
 {
-    private int atr = 6;
+    private double atr = 6;
     private bool atrenable = false;
     public IndicatorCAROL()
     {
@@ -122,7 +122,7 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
         }
     }
 
-    public void setAtr(int atr)
+    public void setAtr(double atr)
     {
         this.atr = atr;
     }
