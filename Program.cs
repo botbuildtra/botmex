@@ -95,6 +95,8 @@ class MainClass
             log(" - Lucas Sousa", ConsoleColor.Magenta);
             log(" - Carlos Morato", ConsoleColor.Magenta);
             log(" - Luis Felipe Alves", ConsoleColor.Magenta);
+            log(" - O Zuca que toda a gente pensa que está Bebendo", ConsoleColor.Green);
+            log(" - O Portuga da Maconha", ConsoleColor.Red);
             log(" ======= END HALL OF FAME BOTMEX  ======= ");
 
             log("http://botmex.ninja/");
@@ -173,7 +175,7 @@ class MainClass
                 System.Threading.Thread.Sleep(1000);
                 OperatingSystem os = Environment.OSVersion;
                 PlatformID pid = os.Platform;
-                if(pid != PlatformID.Unix)
+                if (pid != PlatformID.Unix)
                 {
                     System.Diagnostics.Process.Start(jCointaner["webserverConfig"].ToString());
                 }
@@ -286,7 +288,7 @@ class MainClass
                             double priceActual = getPriceActual("Buy");
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
-                            if (perc > 0)
+                            if (perc > 0 && !double.IsInfinity(perc))
                                 if (perc > stoploss)
                                     _stop = true;
                         }
@@ -296,7 +298,7 @@ class MainClass
                             double priceActual = getPriceActual("Sell");
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
-                            if (perc < 0)
+                            if (perc < 0 && !double.IsInfinity(perc))
                                 if (Math.Abs(perc) > stoploss)
                                     _stop = true;
                         }
@@ -328,7 +330,7 @@ class MainClass
                             double priceActual = getPriceActual("Buy");
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
-                            if (perc < 0)
+                            if (perc < 0 && !double.IsInfinity(perc))
                             {
 
                                 if (traillingProfit > Math.Abs(perc))
@@ -348,7 +350,7 @@ class MainClass
                             double priceActual = getPriceActual("Sell");
                             double perc = ((priceActual * 100) / positionPrice) - 100;
                             log("perc" + perc);
-                            if (perc > 0)
+                            if (perc > 0 && !double.IsInfinity(perc))
                             {
                                 if (traillingProfit > Math.Abs(perc))
                                     if (Math.Abs(perc) > stopgain)
@@ -680,10 +682,10 @@ class MainClass
                         {
 
                             IndicatorCAROL carol = new IndicatorCAROL();
-                            if(carolatr)
+                            if (carolatr)
                             {
-                                    carol.enableAtr(true);
-                                    carol.setAtr(atrvalue);
+                                carol.enableAtr(true);
+                                carol.setAtr(atrvalue);
                             }
 
                             Operation _operation = Operation.nothing;
@@ -742,7 +744,7 @@ class MainClass
 
                                         }
 
-                                   
+
                                     }
                                 }
 
@@ -1021,20 +1023,27 @@ class MainClass
         }
         catch (Exception ex)
         {
-
+            throw new Exception("verifyTendency::" + ex.Message + ex.StackTrace);
         }
     }
 
 
     static double getPriceActual(string type)
     {
-        List<BitMEX.OrderBook> listBook = bitMEXApi.GetOrderBook(pair, 1);
-        foreach (var item in listBook)
+        try
         {
-            if (item.Side.ToUpper() == type.ToUpper())
-                return item.Price;
+            List<BitMEX.OrderBook> listBook = bitMEXApi.GetOrderBook(pair, 1);
+            foreach (var item in listBook)
+            {
+                if (item.Side.ToUpper() == type.ToUpper())
+                    return item.Price;
+            }
         }
-
+        catch (Exception ex)
+        {
+            throw new Exception("getPriceActual::" + ex.Message + ex.StackTrace);
+        }
+        /* this will be fixed on the refactored version but should be ok now*/
         return 0;
     }
 
@@ -1138,8 +1147,7 @@ class MainClass
         }
         catch (Exception ex)
         {
-            log("getOpenOrderQty::" + ex.Message + ex.StackTrace);
-            return 0;
+            throw new Exception("getOpenOrderQty:: " + ex.Message + ex.StackTrace);
         }
     }
 
@@ -1158,8 +1166,7 @@ class MainClass
         }
         catch (Exception ex)
         {
-            log("getPositionPrice::" + ex.Message + ex.StackTrace);
-            return 0;
+            throw new Exception("getPositionPrice::" + ex.Message + ex.StackTrace);
         }
     }
 
