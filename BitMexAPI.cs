@@ -271,13 +271,13 @@ namespace BitMEX
             return JsonConvert.DeserializeObject<List<Instrument>>(res);
         }
 
-        public List<Candle> GetCandleHistory(string symbol, int count, string size)
+        public List<Candle> GetCandleHistory(string symbol, int count, string size, bool partial = false)
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = symbol;
             param["count"] = count.ToString();
             param["reverse"] = true.ToString();
-            param["partial"] = "false";
+            param["partial"] = partial ? "true" : "false";
             param["binSize"] = size;
             string res = Query("GET", "/trade/bucketed", param);
             return JsonConvert.DeserializeObject<List<Candle>>(res).OrderByDescending(a => a.TimeStamp).ToList();

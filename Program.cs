@@ -1057,7 +1057,7 @@ class MainClass
             arrayPriceVolume = new double[sizeArrayCandles];
             arrayPriceOpen = new double[sizeArrayCandles];
             arrayDate = new DateTime[sizeArrayCandles];
-            List<BitMEX.Candle> lstCandle = bitMEXApi.GetCandleHistory(pair, sizeArrayCandles, timeGraph);
+            List<BitMEX.Candle> lstCandle = bitMEXApi.GetCandleHistory(pair, sizeArrayCandles, timeGraph, true);
             int i = 0;
             foreach (var candle in lstCandle)
             {

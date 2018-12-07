@@ -31,7 +31,7 @@ namespace BitBotBackToTheFuture
             MainClass.arrayPriceOpen = new double[sizeArrayCandles];
             MainClass.arrayDate = new DateTime[sizeArrayCandles];
 
-            List<BitMEX.Candle> lstCandle = MainClass.bitMEXApi.GetCandleHistory(symbol, sizeArrayCandles, size);
+            List<BitMEX.Candle> lstCandle = MainClass.bitMEXApi.GetCandleHistory(symbol, sizeArrayCandles, size, true);
 
             int i = 0;
             foreach (var candle in lstCandle)
