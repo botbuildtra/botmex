@@ -32,7 +32,10 @@
    "indicatorsEntry":[  
       {  
          "name":"CAROL",
-         "period":14
+         "period":14,
+         "high": 0,
+         "low": 0,
+         "limit": 0
       }
    ],
    "indicatorsEntryCross":[  
@@ -40,5 +43,14 @@
    ],
    "indicatorsEntryDecision":[  
 
+   ],
+   "indicatorsEntryThreshold":[
+      {  
+        "name": "ATR",
+        "period": 14,
+        "high": 0,
+        "low": 0,
+        "limit": 4
+      }
    ]
 }

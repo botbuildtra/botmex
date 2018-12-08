@@ -1,4 +1,5 @@
 ﻿using BitBotBackToTheFuture;
+using BitBotBackToTheFuture.Strategies;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -49,11 +50,10 @@ class MainClass
     public static double stoploss = 10;
     public static double stopgain = 15;
     public static string bitmexDomain = "";
-    public static string operation = "normal"; // normal - scalper - surf
+    public static string operation = "normal"; // normal - scalper - surf - bingo
     public static bool roeAutomatic = true;
     public static bool usedb = false;
     public static bool tendencyBook = false;
-
     public static double traillingProfit = -1;
     public static double traillingStop = -1;
     public static bool carolatr = false;
@@ -67,8 +67,9 @@ class MainClass
     public static List<IIndicator> lstIndicatorsEntry = new List<IIndicator>();
     public static List<IIndicator> lstIndicatorsEntryCross = new List<IIndicator>();
     public static List<IIndicator> lstIndicatorsEntryDecision = new List<IIndicator>();
+    public static List<IIndicator> lstIndicatorsEntryThreshold = new List<IIndicator>();
 
-
+    public static double positionPrice = 0;
     public static int sizeArrayCandles = 500;
     public static double[] arrayPriceClose = new double[sizeArrayCandles];
     public static double[] arrayPriceHigh = new double[sizeArrayCandles];
@@ -79,6 +80,7 @@ class MainClass
 
 
     public static Object data = new Object();
+    public static bool nothing = false;
 
     public static void Main(string[] args)
     {
@@ -115,49 +117,38 @@ class MainClass
             //System.Diagnostics.Process.Start("https://www.blockchain.com/btc/payment_request?address=1AnttTLGhzJsX7T96SutWS4N9wPYuBThu8&amount_local=30&currency=USD&nosavecurrency=true");
 
             String jsonConfig = System.IO.File.ReadAllText(location + "key.txt");
-            JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
+            JContainer config = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
 
+            usedb = config["usedb"].ToString() == "enable";
 
-
-
-
-            usedb = jCointaner["usedb"].ToString() == "enable";
-
-            bitmexKey = jCointaner["key"].ToString();
-            bitmexSecret = jCointaner["secret"].ToString();
-            bitmexKeyWeb = jCointaner["webserverKey"].ToString();
-            bitmexSecretWeb = jCointaner["webserverSecret"].ToString();
-            bitmexDomain = jCointaner["domain"].ToString();
-            statusShort = jCointaner["short"].ToString();
-            statusLong = jCointaner["long"].ToString();
-            pair = jCointaner["pair"].ToString();
-            ClassDB.strConn = jCointaner["dbcon"].ToString();
-            ClassDB.dbquery = jCointaner["dbquery"].ToString();
-            timeGraph = jCointaner["timeGraph"].ToString();
-            qtdyContacts = int.Parse(jCointaner["contract"].ToString());
-            interval = int.Parse(jCointaner["interval"].ToString());
-            intervalCancelOrder = int.Parse(jCointaner["intervalCancelOrder"].ToString());
-            intervalOrder = int.Parse(jCointaner["intervalOrder"].ToString());
-            intervalCapture = int.Parse(jCointaner["webserverIntervalCapture"].ToString());
-            profit = double.Parse(jCointaner["profit"].ToString());
-            fee = double.Parse(jCointaner["fee"].ToString());
-            stoploss = double.Parse(jCointaner["stoploss"].ToString());
-            stepValue = double.Parse(jCointaner["stepvalue"].ToString());
-            stopgain = double.Parse(jCointaner["stopgain"].ToString());
-            roeAutomatic = jCointaner["roe"].ToString() == "automatic";
-            tendencyBook = jCointaner["tendencyBook"].ToString() == "enable";
-            operation = jCointaner["operation"].ToString();
-            limiteOrder = int.Parse(jCointaner["limiteOrder"].ToString());
-            carolatr = jCointaner["carolatr"].ToString() == "enable";
-            atrvalue = double.Parse(jCointaner["atrvalue"].ToString());
+            bitmexKey = config["key"].ToString();
+            bitmexSecret = config["secret"].ToString();
+            bitmexKeyWeb = config["webserverKey"].ToString();
+            bitmexSecretWeb = config["webserverSecret"].ToString();
+            bitmexDomain = config["domain"].ToString();
+            statusShort = config["short"].ToString();
+            statusLong = config["long"].ToString();
+            pair = config["pair"].ToString();
+            ClassDB.strConn = config["dbcon"].ToString();
+            ClassDB.dbquery = config["dbquery"].ToString();
+            timeGraph = config["timeGraph"].ToString();
+            qtdyContacts = int.Parse(config["contract"].ToString());
+            interval = int.Parse(config["interval"].ToString());
+            intervalCancelOrder = int.Parse(config["intervalCancelOrder"].ToString());
+            intervalOrder = int.Parse(config["intervalOrder"].ToString());
+            intervalCapture = int.Parse(config["webserverIntervalCapture"].ToString());
+            profit = double.Parse(config["profit"].ToString());
+            fee = double.Parse(config["fee"].ToString());
+            stoploss = double.Parse(config["stoploss"].ToString());
+            stepValue = double.Parse(config["stepvalue"].ToString());
+            stopgain = double.Parse(config["stopgain"].ToString());
+            roeAutomatic = config["roe"].ToString() == "automatic";
+            tendencyBook = config["tendencyBook"].ToString() == "enable";
+            operation = config["operation"].ToString();
+            limiteOrder = int.Parse(config["limiteOrder"].ToString());
+            carolatr = config["carolatr"].ToString() == "enable";
+            atrvalue = double.Parse(config["atrvalue"].ToString());
             bitMEXApi = new BitMEX.BitMEXApi(bitmexKey, bitmexSecret, bitmexDomain);
-
-
-
-
-
-
-
 
 
             //TESTS HERE
@@ -166,9 +157,9 @@ class MainClass
 
             //FINAL
 
-            if (jCointaner["webserver"].ToString() == "enable")
+            if (config["webserver"].ToString() == "enable")
             {
-                WebServer ws = new WebServer(WebServer.SendResponse, jCointaner["webserverConfig"].ToString());
+                WebServer ws = new WebServer(WebServer.SendResponse, config["webserverConfig"].ToString());
                 ws.Run();
                 System.Threading.Thread tCapture = new Thread(Database.captureDataJob);
                 tCapture.Start();
@@ -177,7 +168,7 @@ class MainClass
                 PlatformID pid = os.Platform;
                 if (pid != PlatformID.Unix)
                 {
-                    System.Diagnostics.Process.Start(jCointaner["webserverConfig"].ToString());
+                    System.Diagnostics.Process.Start(config["webserverConfig"].ToString());
                 }
             }
 
@@ -208,40 +199,67 @@ class MainClass
             lstIndicatorsAll.Add(new IndicatorULTOSC());
             lstIndicatorsAll.Add(new IndicatorWILLR());
             lstIndicatorsAll.Add(new IndicatorCAROL());
+            lstIndicatorsAll.Add(new IndicatorATR());
             lstIndicatorsAll.Add(new IndicatorX());
 
-            foreach (var item in jCointaner["indicatorsEntry"])
+            foreach (var item in config["indicatorsEntry"])
             {
                 foreach (var item2 in lstIndicatorsAll)
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
                         item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
+                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
+                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
+                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
                         lstIndicatorsEntry.Add(item2);
                     }
                 }
             }
 
-            foreach (var item in jCointaner["indicatorsEntryCross"])
+            foreach (var item in config["indicatorsEntryCross"])
             {
                 foreach (var item2 in lstIndicatorsAll)
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
                         item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
+                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
+                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
+                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
                         lstIndicatorsEntryCross.Add(item2);
                     }
                 }
             }
 
-            foreach (var item in jCointaner["indicatorsEntryDecision"])
+            foreach (var item in config["indicatorsEntryDecision"])
             {
                 foreach (var item2 in lstIndicatorsAll)
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
                         item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
+                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
+                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
+                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
+
                         lstIndicatorsEntryDecision.Add(item2);
+                    }
+                }
+            }
+
+            foreach (var item in config["indicatorsEntryThreshold"])
+            {
+                foreach (var item2 in lstIndicatorsAll)
+                {
+                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
+                    {
+                        item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
+                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
+                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
+                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
+
+                        lstIndicatorsEntryThreshold.Add(item2);
                     }
                 }
             }
@@ -270,7 +288,7 @@ class MainClass
 
 
                     positionContracts = getPosition(); // FIX CARLOS MORATO                                            
-                    double positionPrice = 0;
+                    positionPrice = 0;
 
                     if (positionContracts != 0)
                         positionPrice = getPositionPrice();
@@ -278,108 +296,9 @@ class MainClass
                     log("positionContracts " + positionContracts);
                     log("positionPrice " + positionPrice);
 
+                    log("Checking for possible Stop Losses: ");
+                    runSL();
 
-
-                    if (operation == "scalper")
-                    {
-                        bool _stop = false;
-                        if (positionContracts < 0)
-                        {
-                            double priceActual = getPriceActual("Buy");
-                            double perc = ((priceActual * 100) / positionPrice) - 100;
-                            log("perc" + perc);
-                            if (perc > 0 && !double.IsInfinity(perc))
-                                if (perc > stoploss)
-                                    _stop = true;
-                        }
-
-                        if (positionContracts > 0)
-                        {
-                            double priceActual = getPriceActual("Sell");
-                            double perc = ((priceActual * 100) / positionPrice) - 100;
-                            log("perc" + perc);
-                            if (perc < 0 && !double.IsInfinity(perc))
-                                if (Math.Abs(perc) > stoploss)
-                                    _stop = true;
-                        }
-
-
-                        if (_stop)
-                        {
-                            //Stop loss
-                            log(bitMEXApi.CancelAllOpenOrders(pair));
-                            String side = "Buy";
-                            if (positionContracts > 0)
-                                side = "Sell";
-
-
-
-                            if (side == "Sell")
-                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
-                            if (side == "Buy")
-                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
-                            log("[STOP LOSS] " + pair + " " + side + " " + positionContracts);
-                        }
-
-
-
-
-                        bool _stopgain = false;
-                        if (positionContracts < 0)
-                        {
-                            double priceActual = getPriceActual("Buy");
-                            double perc = ((priceActual * 100) / positionPrice) - 100;
-                            log("perc" + perc);
-                            if (perc < 0 && !double.IsInfinity(perc))
-                            {
-
-                                if (traillingProfit > Math.Abs(perc))
-                                    if (Math.Abs(perc) > stopgain)
-                                        _stopgain = true;
-
-                                if (Math.Abs(perc) > traillingProfit)
-                                    traillingProfit = Math.Abs(perc);
-
-                                if (Math.Abs(perc) > stopgain)
-                                    _stopgain = true;
-                            }
-                        }
-
-                        if (positionContracts > 0)
-                        {
-                            double priceActual = getPriceActual("Sell");
-                            double perc = ((priceActual * 100) / positionPrice) - 100;
-                            log("perc" + perc);
-                            if (perc > 0 && !double.IsInfinity(perc))
-                            {
-                                if (traillingProfit > Math.Abs(perc))
-                                    if (Math.Abs(perc) > stopgain)
-                                        _stopgain = true;
-
-                                if (Math.Abs(perc) > traillingProfit)
-                                    traillingProfit = Math.Abs(perc);
-
-                                if (Math.Abs(perc) > stopgain)
-                                    _stopgain = true;
-                            }
-                        }
-
-
-                        if (_stopgain)
-                        {
-                            //Stop loss
-                            log(bitMEXApi.CancelAllOpenOrders(pair));
-                            String side = "Buy";
-                            if (positionContracts > 0)
-                                side = "Sell";
-                            if (side == "Sell")
-                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
-                            if (side == "Buy")
-                                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
-                            log("[STOP GAIN] " + pair + " " + side + " " + positionContracts);
-                        }
-
-                    }
 
 
 
@@ -391,9 +310,6 @@ class MainClass
                     //SEARCH POSITION AND MAKE ORDER
                     //By Carlos Morato
                     #region "Fix position not orders
-
-                    //if (operation != "surf" && roeAutomatic && Math.Abs(positionContracts) != Math.Abs(getOpenOrderQty()))
-                    //    bitMEXApi.CancelAllOpenOrders(pair);
 
                     fixOrdersPosition();
 
@@ -409,350 +325,23 @@ class MainClass
                         verifyTendency();
 
                     //GET CANDLES
-                    //bool nothing = false;
-                    //if (getCandles())
-                    //{
-
-                    //    if (statusLong == "enable")
-                    //    {
-                    //        log("");
-                    //        log("==========================================================");
-                    //        log(" ==================== Verify LONG OPERATION =============", ConsoleColor.Green);
-                    //        log("==========================================================");
-                    //        /////VERIFY OPERATION LONG
-                    //        string operation = "buy";
-                    //        //VERIFY INDICATORS ENTRY
-                    //        foreach (var item in lstIndicatorsEntry)
-                    //        {
-                    //            Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //            log("Indicator: " + item.getName());
-                    //            log("Result1: " + item.getResult());
-                    //            log("Result2: " + item.getResult2());
-                    //            log("Date: " + arrayDate[arrayPriceOpen.Length - 1]);
-                    //            log("Operation: " + operationBuy.ToString());
-                    //            log("");
-                    //            if (operationBuy != Operation.buy)
-                    //            {
-                    //                operation = "nothing";
-                    //                nothing = true;
-                    //                break;
-                    //            }
-                    //        }
-
-                    //        //VERIFY INDICATORS CROSS
-                    //        if (operation == "buy")
-                    //        {
-                    //            //Prepare to long                        
-                    //            while (true)
-                    //            {
-                    //                log("wait operation long...");
-                    //                getCandles();
-                    //                foreach (var item in lstIndicatorsEntryCross)
-                    //                {
-                    //                    Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //                    log("Indicator Cross: " + item.getName());
-                    //                    log("Result1: " + item.getResult());
-                    //                    log("Result2: " + item.getResult2());
-                    //                    log("Operation: " + operationBuy.ToString());
-                    //                    log("");
-
-                    //                    if (item.getTypeIndicator() == TypeIndicator.Cross)
-                    //                    {
-                    //                        if (operationBuy == Operation.buy)
-                    //                        {
-                    //                            operation = "long";
-                    //                            break;
-                    //                        }
-                    //                    }
-                    //                    else if (operationBuy != Operation.buy)
-                    //                    {
-                    //                        operation = "long";
-                    //                        break;
-                    //                    }
-                    //                }
-                    //                if (lstIndicatorsEntryCross.Count == 0)
-                    //                    operation = "long";
-                    //                if (operation != "buy")
-                    //                    break;
-
-                    //                log("wait " + interval + "ms");
-                    //                Thread.Sleep(interval);
-
-
-                    //            }
-                    //        }
-
-                    //        //VERIFY INDICATORS DECISION
-                    //        if (operation == "long" && lstIndicatorsEntryDecision.Count > 0)
-                    //        {
-                    //            operation = "decision";
-                    //            foreach (var item in lstIndicatorsEntryDecision)
-                    //            {
-                    //                Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //                log("Indicator Decision: " + item.getName());
-                    //                log("Result1: " + item.getResult());
-                    //                log("Result2: " + item.getResult2());
-                    //                log("Operation: " + operationBuy.ToString());
-                    //                log("");
-
-
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "decision") == "enable" && getValue("indicatorsEntryDecision", item.getName(), "tendency") == "enable")
-
-                    //                {
-                    //                    int decisionPoint = int.Parse(getValue("indicatorsEntryDecision", item.getName(), "decisionPoint"));
-                    //                    if (item.getResult() >= decisionPoint && item.getTendency() == Tendency.high)
-                    //                    {
-                    //                        operation = "long";
-                    //                        break;
-                    //                    }
-                    //                }
-
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "decision") == "enable")
-
-                    //                {
-                    //                    int decisionPoint = int.Parse(getValue("indicatorsEntryDecision", item.getName(), "decisionPoint"));
-                    //                    if (item.getResult() >= decisionPoint)
-                    //                    {
-                    //                        operation = "long";
-                    //                        break;
-                    //                    }
-                    //                }
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "tendency") == "enable")
-
-                    //                {
-                    //                    if (item.getTendency() == Tendency.high)
-                    //                    {
-                    //                        operation = "long";
-                    //                        break;
-                    //                    }
-                    //                }
-
-                    //            }
-                    //        }
-
-
-                    //        //EXECUTE OPERATION
-                    //        if (operation == "long")
-                    //            makeOrder("Buy");
-
-                    //        ////////////FINAL VERIFY OPERATION LONG//////////////////
-                    //    }
-
-
-
-                    //    if (statusShort == "enable")
-
-                    //    {
-                    //        //////////////////////////////////////////////////////////////
-                    //        log("");
-                    //        log("==========================================================");
-                    //        log(" ==================== Verify SHORT OPERATION =============", ConsoleColor.Red);
-                    //        log("==========================================================");
-                    //        /////VERIFY OPERATION LONG
-                    //        string operation = "sell";
-                    //        //VERIFY INDICATORS ENTRY
-                    //        foreach (var item in lstIndicatorsEntry)
-                    //        {
-                    //            Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //            log("Indicator: " + item.getName());
-                    //            log("Result1: " + item.getResult());
-                    //            log("Result2: " + item.getResult2());
-                    //            log("Operation: " + operationBuy.ToString());
-                    //            log("");
-                    //            if (operationBuy != Operation.sell)
-                    //            {
-                    //                operation = "nothing";
-                    //                nothing = true;
-                    //                break;
-                    //            }
-                    //        }
-
-                    //        //VERIFY INDICATORS CROSS
-                    //        if (operation == "sell")
-                    //        {
-                    //            //Prepare to long                        
-                    //            while (true)
-                    //            {
-                    //                log("wait operation short...");
-                    //                getCandles();
-                    //                foreach (var item in lstIndicatorsEntryCross)
-                    //                {
-                    //                    Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //                    log("Indicator Cross: " + item.getName());
-                    //                    log("Result1: " + item.getResult());
-                    //                    log("Result2: " + item.getResult2());
-                    //                    log("Operation: " + operationBuy.ToString());
-                    //                    log("");
-
-                    //                    if (item.getTypeIndicator() == TypeIndicator.Cross)
-                    //                    {
-                    //                        if (operationBuy == Operation.sell)
-                    //                        {
-                    //                            operation = "short";
-                    //                            break;
-                    //                        }
-                    //                    }
-                    //                    else if (operationBuy != Operation.sell)
-                    //                    {
-                    //                        operation = "short";
-                    //                        break;
-                    //                    }
-                    //                }
-                    //                if (lstIndicatorsEntryCross.Count == 0)
-                    //                    operation = "short";
-                    //                if (operation != "sell")
-                    //                    break;
-
-                    //                log("wait " + interval + "ms");
-                    //                Thread.Sleep(interval);
-
-
-                    //            }
-                    //        }
-
-                    //        //VERIFY INDICATORS DECISION
-                    //        if (operation == "short" && lstIndicatorsEntryDecision.Count > 0)
-                    //        {
-                    //            operation = "decision";
-                    //            foreach (var item in lstIndicatorsEntryDecision)
-                    //            {
-                    //                Operation operationBuy = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                    //                log("Indicator Decision: " + item.getName());
-                    //                log("Result1: " + item.getResult());
-                    //                log("Result2: " + item.getResult2());
-                    //                log("Operation: " + operationBuy.ToString());
-                    //                log("");
-
-
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "decision") == "enable" && getValue("indicatorsEntryDecision", item.getName(), "tendency") == "enable")
-
-                    //                {
-                    //                    int decisionPoint = int.Parse(getValue("indicatorsEntryDecision", item.getName(), "decisionPoint"));
-                    //                    if (item.getResult() <= decisionPoint && item.getTendency() == Tendency.low)
-                    //                    {
-                    //                        operation = "short";
-                    //                        break;
-                    //                    }
-                    //                }
-
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "decision") == "enable")
-
-                    //                {
-                    //                    int decisionPoint = int.Parse(getValue("indicatorsEntryDecision", item.getName(), "decisionPoint"));
-                    //                    if (item.getResult() <= decisionPoint)
-                    //                    {
-                    //                        operation = "short";
-                    //                        break;
-                    //                    }
-                    //                }
-
-                    //                if (getValue("indicatorsEntryDecision", item.getName(), "tendency") == "enable")
-
-                    //                {
-                    //                    if (item.getTendency() == Tendency.low)
-                    //                    {
-                    //                        operation = "short";
-                    //                        break;
-                    //                    }
-                    //                }
-
-                    //            }
-                    //        }
-
-
-                    //        //EXECUTE OPERATION
-                    //        if (operation == "short")
-                    //            makeOrder("Sell");
-
-                    //        ////////////FINAL VERIFY OPERATION LONG//////////////////
-                    //    }
-
-                    //}
-
-
-
-                    //condicao
+                    nothing = false;
                     if (getCandles())
-                        if (operation == "scalper")
+                    {
+                        if(operation == "normal" || operation =="surf")
                         {
-
-                            IndicatorCAROL carol = new IndicatorCAROL();
-                            if (carolatr)
-                            {
-                                carol.enableAtr(true);
-                                carol.setAtr(atrvalue);
-                            }
-
-                            Operation _operation = Operation.nothing;
-                            _operation = carol.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
-                            if (_operation != Operation.nothing)
-                            {
-
-                                if (Math.Abs(getPosition()) == 0 && Math.Abs(getOpenOrderQty()) == 0)
-                                {
-
-
-                                    List<double> lst = arrayPriceClose.OfType<double>().ToList();
-
-                                    log("Min: " + lst.Min());
-                                    log("Avg: " + lst.Average());
-                                    log("Max: " + lst.Max());
-
-                                    double percaux = 0.3;
-                                    double min5 = ((lst.Min() * percaux) / 100) + (lst.Min());
-                                    double max5 = (lst.Max()) - ((lst.Max() * percaux) / 100);
-
-                                    log("Min5: " + min5);
-                                    log("Max5: " + max5);
-                                    if (arrayPriceClose[499] > min5 && arrayPriceClose[499] < max5)
-                                    {
-
-                                        if (_operation == Operation.buy)
-                                        {
-                                            makeOrder("Buy", true);
-                                            for (int i = 0; i < 20; i++)
-                                            {
-                                                Thread.Sleep(6000);
-                                                if (Math.Abs(getPosition()) > 0)
-                                                {
-                                                    fixOrdersPosition();
-                                                    break;
-                                                }
-                                            }
-                                            if (Math.Abs(getPosition()) == 0)
-                                                bitMEXApi.CancelAllOpenOrders(pair);
-                                        }
-                                        else if (_operation == Operation.sell)
-                                        {
-                                            makeOrder("Sell", true);
-                                            for (int i = 0; i < 20; i++)
-                                            {
-                                                Thread.Sleep(6000);
-                                                if (Math.Abs(getPosition()) > 0)
-                                                {
-                                                    fixOrdersPosition();
-                                                    break;
-                                                }
-                                            }
-                                            if (Math.Abs(getPosition()) == 0)
-                                                bitMEXApi.CancelAllOpenOrders(pair);
-
-                                        }
-
-
-                                    }
-                                }
-
-                            }
+                            Normal.run();
+                        }
+                        else if( operation == "scalper")
+                        {
+                            Scalper.run();
+                        }
+                        else if( operation == "bingo")
+                        {
+                            Bingo.run();
                         }
 
-
-
+                    }
 
                     log("wait " + interval + "ms", ConsoleColor.Blue);
                     Thread.Sleep(interval);
@@ -776,7 +365,7 @@ class MainClass
 
 
 
-    static bool existsOrderOpenById(string id)
+    public static bool existsOrderOpenById(string id)
     {
         List<BitMEX.Order> lst = bitMEXApi.GetOpenOrders(pair);
         foreach (var item in lst)
@@ -788,7 +377,7 @@ class MainClass
     }
 
 
-    static void makeOrder(string side, bool nothing = false)
+    public static void makeOrder(string side, bool nothing = false)
     {
         bool execute = false;
         try
@@ -806,7 +395,7 @@ class MainClass
                 return;
             }
 
-            if (side == "Sell" && statusShort == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
+            if (side == "Sell" && statusShort == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count) && getPosition() >= 0)
             {
 
 
@@ -830,13 +419,14 @@ class MainClass
 
                 if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
                     return;
+                log("Short Order at: " + price);
 
-                JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                JContainer config = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
 
 
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
-                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
+                    if (!existsOrderOpenById(config["orderID"].ToString()) && !existsOrderOpenById(config["orderID"].ToString()))
                     {
                         if (operation == "scalper")
                         {
@@ -879,15 +469,15 @@ class MainClass
 
                 if (!execute)
                 {
-                    bitMEXApi.DeleteOrders(jCointaner["orderID"].ToString());
-                    while (existsOrderOpenById(jCointaner["orderID"].ToString()))
-                        bitMEXApi.DeleteOrders(jCointaner["orderID"].ToString());
-                    log("Cancel order ID " + jCointaner["orderID"].ToString());
+                    bitMEXApi.DeleteOrders(config["orderID"].ToString());
+                    while (existsOrderOpenById(config["orderID"].ToString()))
+                        bitMEXApi.DeleteOrders(config["orderID"].ToString());
+                    log("Cancel order ID " + config["orderID"].ToString());
                 }
 
             }
 
-            if (side == "Buy" && statusLong == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count))
+            if (side == "Buy" && statusLong == "enable" && Math.Abs(limiteOrder) > Math.Abs(bitMEXApi.GetOpenOrders(pair).Count) && getPosition() <= 0)
             {
 
                 if (tendencyBook)
@@ -912,13 +502,13 @@ class MainClass
                 if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
                     return;
 
-
-                JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                log("Long Order at: " + price);
+                JContainer config = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
 
                 log("wait total...");
                 for (int i = 0; i < intervalCancelOrder; i++)
                 {
-                    if (!existsOrderOpenById(jCointaner["orderID"].ToString()) && !existsOrderOpenById(jCointaner["orderID"].ToString()))
+                    if (!existsOrderOpenById(config["orderID"].ToString()) && !existsOrderOpenById(config["orderID"].ToString()))
                     {
 
                         if (operation == "scalper")
@@ -955,10 +545,10 @@ class MainClass
 
                 if (!execute)
                 {
-                    bitMEXApi.DeleteOrders(jCointaner["orderID"].ToString());
-                    while (existsOrderOpenById(jCointaner["orderID"].ToString()))
-                        bitMEXApi.DeleteOrders(jCointaner["orderID"].ToString());
-                    log("Cancel order ID " + jCointaner["orderID"].ToString());
+                    bitMEXApi.DeleteOrders(config["orderID"].ToString());
+                    while (existsOrderOpenById(config["orderID"].ToString()))
+                        bitMEXApi.DeleteOrders(config["orderID"].ToString());
+                    log("Cancel order ID " + config["orderID"].ToString());
                 }
 
 
@@ -979,7 +569,7 @@ class MainClass
         }
     }
 
-    static void verifyTendency()
+    public static void verifyTendency()
     {
         try
         {
@@ -1047,7 +637,7 @@ class MainClass
         return 0;
     }
 
-    static bool getCandles()
+    public static bool getCandles()
     {
         try
         {
@@ -1092,7 +682,7 @@ class MainClass
     }
 
     //By Lucas Sousa modify MatheusGrijo
-    static int getPosition()
+    public static int getPosition()
     {
         try
         {
@@ -1111,7 +701,7 @@ class MainClass
         }
     }
 
-    static double getRoe()
+    public static double getRoe()
     {
         try
         {
@@ -1132,7 +722,7 @@ class MainClass
 
     //GetOpenOrderQty
     //by Carlos Morato
-    static int getOpenOrderQty()
+    public static int getOpenOrderQty()
     {
         try
         {
@@ -1154,7 +744,7 @@ class MainClass
 
     //GetPositionPrice
     //by Carlos Morato
-    static double getPositionPrice()
+    public static double getPositionPrice()
     {
         try
         {
@@ -1170,11 +760,11 @@ class MainClass
         }
     }
 
-    static string getValue(String nameList, String nameIndicator, String nameParameter)
+    public static string getValue(String nameList, String nameIndicator, String nameParameter)
     {
         String jsonConfig = System.IO.File.ReadAllText(location + "key.txt");
-        JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
-        foreach (var item in jCointaner[nameList])
+        JContainer config = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
+        foreach (var item in config[nameList])
             if (item["name"].ToString().Trim().ToUpper() == nameIndicator.ToUpper().Trim())
                 return item[nameParameter].ToString().Trim();
         return null;
@@ -1235,7 +825,105 @@ class MainClass
 
 
 
+    public static void runSL()
+    {
+        bool _stop = false;
+        if (positionContracts < 0)
+        {
+            double priceActual = getPriceActual("Buy");
+            double perc = ((priceActual * 100) / positionPrice) - 100;
+            log("perc" + perc);
+            if (perc > 0 && !double.IsInfinity(perc))
+                if (perc > stoploss)
+                    _stop = true;
+        }
 
+        if (positionContracts > 0)
+        {
+            double priceActual = getPriceActual("Sell");
+            double perc = ((priceActual * 100) / positionPrice) - 100;
+            log("perc" + perc);
+            if (perc < 0 && !double.IsInfinity(perc))
+                if (Math.Abs(perc) > stoploss)
+                    _stop = true;
+        }
+
+
+        if (_stop)
+        {
+            //Stop loss
+            log(bitMEXApi.CancelAllOpenOrders(pair));
+            String side = "Buy";
+            if (positionContracts > 0)
+                side = "Sell";
+
+
+
+            if (side == "Sell")
+                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
+            if (side == "Buy")
+                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
+            log("[STOP LOSS] " + pair + " " + side + " " + positionContracts);
+        }
+
+
+
+
+        bool _stopgain = false;
+        if (positionContracts < 0)
+        {
+            double priceActual = getPriceActual("Buy");
+            double perc = ((priceActual * 100) / positionPrice) - 100;
+            log("perc" + perc);
+            if (perc < 0 && !double.IsInfinity(perc))
+            {
+
+                if (traillingProfit > Math.Abs(perc))
+                    if (Math.Abs(perc) > stopgain)
+                        _stopgain = true;
+
+                if (Math.Abs(perc) > traillingProfit)
+                    traillingProfit = Math.Abs(perc);
+
+                if (Math.Abs(perc) > stopgain)
+                    _stopgain = true;
+            }
+        }
+
+        if (positionContracts > 0)
+        {
+            double priceActual = getPriceActual("Sell");
+            double perc = ((priceActual * 100) / positionPrice) - 100;
+            log("perc" + perc);
+            if (perc > 0 && !double.IsInfinity(perc))
+            {
+                if (traillingProfit > Math.Abs(perc))
+                    if (Math.Abs(perc) > stopgain)
+                        _stopgain = true;
+
+                if (Math.Abs(perc) > traillingProfit)
+                    traillingProfit = Math.Abs(perc);
+
+                if (Math.Abs(perc) > stopgain)
+                    _stopgain = true;
+            }
+        }
+
+
+        if (_stopgain)
+        {
+            //Stop loss
+            log(bitMEXApi.CancelAllOpenOrders(pair));
+            String side = "Buy";
+            if (positionContracts > 0)
+                side = "Sell";
+            if (side == "Sell")
+                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") - 10, Math.Abs(positionContracts), true));
+            if (side == "Buy")
+                log(bitMEXApi.PostOrderPostOnly(pair, side, getPriceActual("Sell") + 10, Math.Abs(positionContracts), true));
+            log("[STOP GAIN] " + pair + " " + side + " " + positionContracts);
+        }
+    }
     public static void fixOrdersPosition(bool force = true)
     {
         positionContracts = getPosition(); // FIX CARLOS MORATO                                            
@@ -1260,7 +948,7 @@ class MainClass
                 {
                     double price = priceContacts + stepValue;
                     String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force);
-                    JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
 
                 }
@@ -1268,7 +956,7 @@ class MainClass
                 {
                     double price = priceContacts + stepValue;
                     String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force);
-                    JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
                 }
             }
@@ -1286,7 +974,7 @@ class MainClass
                 {
                     double price = priceContacts - stepValue;
                     String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force);
-                    JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
 
                 }
@@ -1294,13 +982,38 @@ class MainClass
                 {
                     double price = priceContacts - stepValue;
                     String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force);
-                    JContainer jCointaner2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
 
                 }
             }
 
         }
+    }
+
+    public static void getOperation()
+    {
+        Operation op = Operation.nothing;
+        /* Check Buy */
+
+        foreach (var item in lstIndicatorsEntry)
+        {
+            op = item.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayPriceVolume);
+            log("Indicator: " + item.getName());
+            log("Result1: " + item.getResult());
+            log("Result2: " + item.getResult2());
+            log("Date: " + arrayDate[arrayPriceOpen.Length - 1]);
+            log("Operation: " + op.ToString());
+            log("");
+            if (op != Operation.buy)
+            {
+                operation = "nothing";
+                nothing = true;
+                break;
+            }
+        }
+
+        /* Check Sell */
     }
 
     public static void tests()

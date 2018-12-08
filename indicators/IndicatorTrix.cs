@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 public class IndicatorTRIX : IndicatorBase, IIndicator
 {
-
+    public double high, low = 0;
+    public double limit;
     public IndicatorTRIX()
     {
         this.indicator = this;
@@ -60,5 +61,20 @@ public class IndicatorTRIX : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

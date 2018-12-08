@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 public class IndicatorChaikin : IndicatorBase, IIndicator
 {
 
-
+    public double limit;
+    public double high = 0;
+    public double low = 0;
     public IndicatorChaikin()
     {
         this.indicator = this;
@@ -53,10 +55,10 @@ public class IndicatorChaikin : IndicatorBase, IIndicator
             TicTacTec.TA.Library.Core.AdOsc(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, arrayVolume, 3, 10, out outBegidx, out outNbElement, arrayresultTA);
             double chaikin = arrayresultTA[outNbElement - 1];
             this.result = chaikin;
-            if (chaikin < 0)
-                return Operation.sell;
-            if (chaikin > 0)
+            if (chaikin < this.low)
                 return Operation.buy;
+            if (chaikin > this.high)
+                return Operation.sell;
 
             return Operation.nothing;
         }
@@ -64,5 +66,20 @@ public class IndicatorChaikin : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

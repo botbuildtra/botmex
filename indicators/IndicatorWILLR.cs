@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 public class IndicatorWILLR : IndicatorBase, IIndicator
 {
-
+    public double high = -20;
+    public double low = -80;
+    public double limit;
     public IndicatorWILLR()
     {
         this.indicator = this;
@@ -59,9 +61,9 @@ public class IndicatorWILLR : IndicatorBase, IIndicator
                 this.tendency = Tendency.low;
 
 
-            if (value > -20)
+            if (value > this.high)
                 return Operation.sell;
-            if (value < -80)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -69,5 +71,20 @@ public class IndicatorWILLR : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

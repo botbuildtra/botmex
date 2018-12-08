@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 public class IndicatorCMO : IndicatorBase, IIndicator
 {
 
-
+    public double high = 50;
+    public double low = -50;
+    public double limit;
 
     public IndicatorCMO()
     {
@@ -55,9 +57,9 @@ public class IndicatorCMO : IndicatorBase, IIndicator
             TicTacTec.TA.Library.Core.Cmo(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, out outBegidx, out outNbElement, arrayresultTA);
             double value = arrayresultTA[outNbElement - 1];
             this.result = value;
-            if (value > 50)
+            if (value > this.high)
                 return Operation.sell;
-            if (value < -50)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -65,5 +67,20 @@ public class IndicatorCMO : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 public class IndicatorROC : IndicatorBase, IIndicator
 {
+    public double limit;
+    public double high, low = 0;
+
     public IndicatorROC()
     {
         this.indicator = this;
@@ -59,15 +62,30 @@ public class IndicatorROC : IndicatorBase, IIndicator
 
 
             this.result = value;
-            if (value > 0)
-                return Operation.buy;
-            if (value < 0)
+            if (value > this.high)
                 return Operation.sell;
+            if (value < this.low)
+                return Operation.buy;
             return Operation.nothing;
         }
         catch
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

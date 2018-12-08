@@ -67,4 +67,19 @@ public class IndicatorBBANDS : IndicatorBase, IIndicator
     {
         return this.result2;
     }
+
+    public void setHigh(double high)
+    {
+        //throw new NotImplementedException();
+    }
+
+    public void setLow(double low)
+    {
+        //throw new NotImplementedException();
+    }
+
+    public void setLimit(double limit)
+    {
+        //throw new NotImplementedException();
+    }
 }

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
 {
+    public double high = 80;
+    public double low = 20;
+    public double limit;
 
     public IndicatorSTOCHRSI()
     {
@@ -49,14 +52,15 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
 
             double[] outK = new double[arrayPriceClose.Length];
             double[] outD = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.StochRsi(0, arrayPriceClose.Length - 1, arrayPriceClose, 14, 3, 3, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, outK, outD);
+
+            TicTacTec.TA.Library.Core.StochRsi(0, arrayPriceClose.Length - 1, arrayPriceClose, period, 3, 3, TicTacTec.TA.Library.Core.MAType.Sma, out outBegidx, out outNbElement, outK, outD);
             double stochRsiK = outK[outNbElement - 1];
             double stochRsiD = outD[outNbElement - 1];
             this.result = stochRsiK;
             this.result2 = stochRsiD;
-            if (stochRsiK > 80 && stochRsiD > 80)
+            if (stochRsiK > this.high && stochRsiD > this.high)
                 return Operation.sell;
-            if (stochRsiK < 20 && stochRsiD < 20)
+            if (stochRsiK < this.low && stochRsiD < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -64,5 +68,26 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setData(int high, int low )
+    {
+        this.high = high;
+        this.low = low;
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

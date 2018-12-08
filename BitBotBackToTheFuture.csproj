@@ -88,6 +88,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BitMexAPI.cs" />
     <Compile Include="WebServer.cs" />
+    <Compile Include="indicators\IndicatorATR.cs" />
+    <Compile Include="Strategies\Bingo.cs" />
+    <Compile Include="Strategies\Normal.cs" />
+    <Compile Include="Strategies\Scalper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -101,11 +105,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="key.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Strategies\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

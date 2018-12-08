@@ -64,19 +64,19 @@ public class Database
 
                 BitMEX.BitMEXApi bitMEXApi = new BitMEX.BitMEXApi(MainClass.bitmexKey, MainClass.bitmexSecret, MainClass.bitmexDomain);
                 string json = bitMEXApi.GetWallet();
-                JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                JContainer data = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
 
                 
-                ClassDB.execS(ClassDB.dbquery.Replace("@balance", jCointaner[0]["walletBalance"].ToString().Replace(",", ".")));
+                ClassDB.execS(ClassDB.dbquery.Replace("@balance", data[0]["walletBalance"].ToString().Replace(",", ".")));
 
                 if (create)
                     ds.Tables[0].Rows.Clear();
 
-                ds.Tables[0].Rows.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), MainClass.pair, jCointaner[0]["walletBalance"].ToString());
+                ds.Tables[0].Rows.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), MainClass.pair, data[0]["walletBalance"].ToString());
 
                 ds.Tables[1].Rows.Clear();
                 ds.Tables[1].Rows.Add("OpenOrders", bitMEXApi.GetOpenOrders(MainClass.pair).Count);
-                ds.Tables[1].Rows.Add("Amount", jCointaner[0]["walletBalance"].ToString());
+                ds.Tables[1].Rows.Add("Amount", data[0]["walletBalance"].ToString());
 
 
                 System.IO.File.Delete(dataBaseFile);

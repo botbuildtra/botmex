@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public class IndicatorADX : IndicatorBase, IIndicator
 {
-
+    public double low = 25;
 
     public IndicatorADX()
     {
@@ -35,7 +35,7 @@ public class IndicatorADX : IndicatorBase, IIndicator
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double value = result[outNbElement - 1];
             this.result = value;
-            if (value > 25)
+            if (value > this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -63,5 +63,20 @@ public class IndicatorADX : IndicatorBase, IIndicator
     public Tendency getTendency()
     {
         return this.tendency;
+    }
+
+    public void setHigh(double high)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        throw new NotImplementedException();
     }
 }

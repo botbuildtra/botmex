@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 public class IndicatorSAR : IndicatorBase, IIndicator
 {
+    private double high;
+    private double low;
+    private double limit;
 
     public IndicatorSAR()
     {
@@ -65,5 +68,20 @@ public class IndicatorSAR : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

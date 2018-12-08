@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 public class IndicatorMACD : IndicatorBase, IIndicator
 {
 
+    public double high;
+    public double low;
+    public double limit;
 
     public IndicatorMACD()
     {
@@ -68,5 +71,20 @@ public class IndicatorMACD : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

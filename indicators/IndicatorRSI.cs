@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 public class IndicatorRSI : IndicatorBase, IIndicator
 {
+    public double high = 70;
+    public double low = 30;
+    public double limit;
     public IndicatorRSI()
     {
         this.indicator = this;
@@ -63,9 +66,9 @@ public class IndicatorRSI : IndicatorBase, IIndicator
                 this.tendency = Tendency.low;
 
 
-            if (value > 70)
+            if (value > this.high)
                 return Operation.sell;
-            if (value < 30)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -75,5 +78,24 @@ public class IndicatorRSI : IndicatorBase, IIndicator
         }
     }
 
+    public void setData(int high, int low)
+    {
+        this.high = high;
+        this.low = low;
+    }
 
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
+    }
 }

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 public class IndicatorMA : IndicatorBase, IIndicator
 {
+    public double high;
+    public double low;
+    public double limit;
 
     public IndicatorMA()
     {
@@ -49,12 +52,12 @@ public class IndicatorMA : IndicatorBase, IIndicator
         {
             int outBegidxLonga, outNbElementLonga, outBegidxCurta, outNbElementCurta;
             double[] arrayLonga = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period*2, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxLonga, out outNbElementLonga, arrayLonga);
+            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.high) , TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxLonga, out outNbElementLonga, arrayLonga);
             double value = arrayLonga[outNbElementLonga - 1];
             this.result = value;
 
             double[] arrayCurta = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxCurta, out outNbElementCurta, arrayCurta);
+            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.low), TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxCurta, out outNbElementCurta, arrayCurta);
             double value2 = arrayCurta[outNbElementCurta - 1];
             this.result2 = value2;
 
@@ -70,5 +73,20 @@ public class IndicatorMA : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 public class IndicatorULTOSC : IndicatorBase, IIndicator
 {
 
+    public double high = 70;
+    public double low = 30;
+    public double limit;
 
     public IndicatorULTOSC()
     {
@@ -50,9 +53,9 @@ public class IndicatorULTOSC : IndicatorBase, IIndicator
                 this.tendency = Tendency.low;
 
 
-            if (value > 70)
+            if (value > this.high)
                 return Operation.sell;
-            if (value < 30)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -70,5 +73,20 @@ public class IndicatorULTOSC : IndicatorBase, IIndicator
     public double getResult2()
     {
         return this.result2;
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

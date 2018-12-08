@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 public class IndicatorDX : IndicatorBase, IIndicator
 {
 
+    public double high, low, limit;
 
     public IndicatorDX()
     {
@@ -73,5 +74,20 @@ public class IndicatorDX : IndicatorBase, IIndicator
     public double getResult2()
     {
         return this.result2;
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 public class IndicatorCCI : IndicatorBase, IIndicator
 {
 
+    public double high = 100;
+    public double low = -100;
+    public double limit;
+
     public IndicatorCCI()
     {
         this.indicator = this;
@@ -56,9 +60,9 @@ public class IndicatorCCI : IndicatorBase, IIndicator
                 this.tendency = Tendency.low;
 
 
-            if (value > 100)
+            if (value > this.high)
                 return Operation.sell;
-            if (value < -100)
+            if (value < -this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -72,4 +76,26 @@ public class IndicatorCCI : IndicatorBase, IIndicator
     {
         this.period = period;
     }
+
+    public void setData(int high, int low)
+    {
+        this.high = high;
+        this.low = low;
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
+    }
+
 }

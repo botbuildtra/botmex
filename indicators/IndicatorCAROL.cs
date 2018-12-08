@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BitBotBackToTheFuture;
 
 public class IndicatorCAROL : IndicatorBase, IIndicator
 {
+
+    public double high, low, limit;
     private double atr = 6;
     private bool atrenable = false;
     public IndicatorCAROL()
@@ -82,39 +85,37 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
             IndicatorRSI rsi = new IndicatorRSI();
             Operation operationRSI = rsi.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
-            MainClass.log("CCI " + cci.result);
-            MainClass.log("CCI Tendency: " + cci.getTendency());
-            MainClass.log("RSI " + rsi.result);
+            //TicTacTec.TA.Library.Core.Atr();
+
+            MainClass.log("CCI: " + cci.result);
+            MainClass.log("CCI Tendency: " + cci.getTendency());  
+            MainClass.log("RSI: " + rsi.result);
             MainClass.log("RSI Tendency: " + rsi.getTendency());
 
-            if( atrenable)
+            if( MainClass.carolatr )
             {
-                MainClass.log("ATR " + atrVal);
+                MainClass.log("ATR: " + atrVal);
             }
 
-            Tendency t1 = cci.getTendency();
-            Tendency t2 = rsi.getTendency();
-            if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high && ( ( atrenable && atrVal < this.atr ) || !atrenable ) )
+            if (cci.result > 0 && operationMACD == Operation.buy && rsi.result > 50 && cci.getTendency() == Tendency.high && rsi.getTendency() == Tendency.high && ((MainClass.carolatr && atrVal < MainClass.atrvalue) || !MainClass.carolatr))
+            //if (operationMACD == Operation.buy)
             {
                 double[] arrayresultMA = new double[arrayPriceClose.Length];
                 int outBegidx, outNbElement;
-                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 200, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
-                if (arrayresultMA[outNbElement - 1] > arrayresultMA[outNbElement - 10] && arrayPriceClose[arrayPriceClose.Length - 1] > arrayresultMA[outNbElement - 1])
+                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 100, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
+                if (arrayPriceClose[arrayPriceClose.Length - 1] > arrayresultMA[outNbElement - 1])
                     return Operation.buy;
             }
-            if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low && ((atrenable && atrVal < this.atr) || !atrenable) )
+            if (cci.result < 0 && operationMACD == Operation.sell && rsi.result < 50 && cci.getTendency() == Tendency.low && rsi.getTendency() == Tendency.low && ((MainClass.carolatr && atrVal < MainClass.atrvalue) || !MainClass.carolatr))
+            //if (operationMACD == Operation.sell)
             {
                 double[] arrayresultMA = new double[arrayPriceClose.Length];
                 int outBegidx, outNbElement;
-                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 200, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
-                if (arrayresultMA[outNbElement - 1] < arrayresultMA[outNbElement - 10] && arrayPriceClose[arrayPriceClose.Length - 1] < arrayresultMA[outNbElement - 1])
+                TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, 100, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, arrayresultMA);
+                if (arrayPriceClose[arrayPriceClose.Length - 1] < arrayresultMA[outNbElement - 1])
                     return Operation.sell;
             }
-
             return Operation.nothing;
-
-
-
         }
         catch
         {
@@ -127,8 +128,24 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
         this.atr = atr;
     }
 
-    public void enableAtr(bool val )
+    public void enableAtr(bool val)
     {
         this.atrenable = val;
     }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
+    }
+
 }

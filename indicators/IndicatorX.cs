@@ -7,6 +7,9 @@ using System.Threading.Tasks;
     public class IndicatorX : IndicatorBase, IIndicator
     {
 
+        public double high;
+        public double low;
+        public double limit;
         public IndicatorX()
         {
             this.indicator = this;
@@ -82,5 +85,20 @@ using System.Threading.Tasks;
     public void setPeriod(int period)
     {
         
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 public class IndicatorMOM : IndicatorBase, IIndicator
 {
 
-
-
+    public double limit;
+    public double high = 100;
+    public double low = -100;
     public IndicatorMOM()
     {
         this.indicator = this;
@@ -72,5 +73,20 @@ public class IndicatorMOM : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }

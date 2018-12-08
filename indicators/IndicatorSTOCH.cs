@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 public class IndicatorSTOCH : IndicatorBase, IIndicator
 {
 
+    private double high = 80;
+    private double low = 20;
+    private double limit;
+
     public IndicatorSTOCH()
     {
         this.indicator = this;
@@ -56,9 +60,9 @@ public class IndicatorSTOCH : IndicatorBase, IIndicator
             this.result = stochRsiK;
             this.result2 = stochRsiD;
 
-            if (stochRsiK > 80 && stochRsiD > 80)
+            if (stochRsiK > this.high && stochRsiD > this.high)
                 return Operation.sell;
-            if (stochRsiK < 20 && stochRsiD < 20)
+            if (stochRsiK < this.low && stochRsiD < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -66,5 +70,26 @@ public class IndicatorSTOCH : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
+    }
+
+    public void setData(int high, int low)
+    {
+        this.high = high;
+        this.low = low;
+    }
+
+    public void setHigh(double high)
+    {
+        this.high = high;
+    }
+
+    public void setLow(double low)
+    {
+        this.low = low;
+    }
+
+    public void setLimit(double limit)
+    {
+        this.limit = limit;
     }
 }
