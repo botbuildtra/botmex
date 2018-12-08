@@ -62,7 +62,7 @@ public class IndicatorCCI : IndicatorBase, IIndicator
 
             if (value > this.high)
                 return Operation.sell;
-            if (value < -this.low)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
