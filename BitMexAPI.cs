@@ -209,8 +209,13 @@ namespace BitMEX
             return JsonConvert.DeserializeObject<List<OrderBook>>(res);
         }
 
-        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false)
+        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false, bool marketTaker = false)
         {
+            if(marketTaker)
+            {
+                return MarketOrder(Symbol, Side, Quantity);
+            }
+
             var param = new Dictionary<string, string>();
             param["symbol"] = Symbol;
             param["side"] = Side;
@@ -248,6 +253,19 @@ namespace BitMEX
 
 
         }
+
+        public string MarketClose(string Symbol, string Side)
+        {
+            var param = new Dictionary<string, string>();
+            param["symbol"] = Symbol;
+            param["side"] = Side;
+            param["ordType"] = "Market";
+            param["execInst"] = "Close";
+
+            String ret = Query("POST", "/order", param, true);
+            return ret;
+        }
+
 
         public string CancelAllOpenOrders(string symbol, string Note = "")
         {

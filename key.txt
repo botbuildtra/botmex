@@ -11,6 +11,7 @@
    "contract":100,
    "profit":0.1,
    "fee":0.0001,
+   "marketTaker": "disable"
    "limiteOrder":1,
    "stoploss":4,
    "stepvalue":0.5,
