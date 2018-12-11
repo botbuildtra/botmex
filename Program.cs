@@ -412,7 +412,16 @@ class MainClass
                 log(json);
 
                 if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
+                {
+                    if (json.ToLower().IndexOf("overload") >= 0)
+                    {/* In case of overload, close the position to prevent losses*/
+                        log("System is on overload, trying to close position to prevent losses");
+                        log(bitMEXApi.MarketClose(pair, side));
+                    }
                     return;
+                }
+
+
                 log("Short Order at: " + price);
 
                 JContainer config = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
@@ -490,7 +499,15 @@ class MainClass
 
                 log(json);
                 if (json.ToLower().IndexOf("error") >= 0 || json.ToLower().IndexOf("canceled") >= 0)
+                {
+                    if(json.ToLower().IndexOf("overload") >= 0)
+                    {/* In case of overload, close the position to prevent losses*/
+                        log("System is on overload, trying to close position to prevent losses");
+                        log(bitMEXApi.MarketClose(pair, side));
+                    }
                     return;
+                }
+
 
                 log("Long Order at: " + price);
                 JContainer config = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
