@@ -17,6 +17,7 @@
    "stepvalue":0.5,
    "stopgain":5,
    "operation":"scalper",
+   "obDiff": 7.5,
    "tendencyBook":"denable",
    "long":"enable",
    "short":"enable",
