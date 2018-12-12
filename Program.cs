@@ -59,6 +59,7 @@ class MainClass
     public static bool carolatr = false;
     public static double atrvalue = 6;
     public static bool marketTaker = false;
+    public static double obDiff = 10;
 
     public static double stepValue = 0.5;
     public static TendencyMarket tendencyMarket = TendencyMarket.NORMAL;
@@ -151,6 +152,7 @@ class MainClass
             atrvalue = double.Parse(config["atrvalue"].ToString());
             bitMEXApi = new BitMEX.BitMEXApi(bitmexKey, bitmexSecret, bitmexDomain);
             marketTaker = config["carolatr"].ToString() == "enable";
+            obDiff = double.Parse(config["obDiff"].ToString());
 
             //TESTS HERE
 
@@ -406,7 +408,7 @@ class MainClass
                 if (operation == "surf" || operation == "normal")
                 {
                     price = Math.Abs(getPriceActual(side));
-                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true, marketTaker);
+                    json = bitMEXApi.PostOrderPostOnly(pair, side, price + obDiff, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true, marketTaker);
                 }
 
                 log(json);
@@ -493,7 +495,7 @@ class MainClass
                 if (operation == "surf" || operation == "normal")
                 {
                     price = Math.Abs(getPriceActual(side));
-                    json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true, marketTaker);
+                    json = bitMEXApi.PostOrderPostOnly(pair, side, price - obDiff, Math.Abs(getPosition()) + Math.Abs(qtdyContacts), true, marketTaker);
                 }
 
 
@@ -546,7 +548,7 @@ class MainClass
                     }
                     log("wait order limit " + i + " of " + intervalCancelOrder + "...");
                     if (operation != "scalper")
-                        Thread.Sleep(800);
+                        Thread.Sleep(1000);
                 }
 
 
