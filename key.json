@@ -15,7 +15,7 @@
   "marketTaker": "disable",
   "limiteOrder": 1,
   "stoploss": 4,
-  "stoplosstype": "strategy",
+  "stoplosstype": "bot",
   "stoplossInterval": 4,
   "stepvalue": 0.5,
   "stopgain": 5,
