@@ -13,26 +13,27 @@ namespace BitBotBackToTheFuture.Strategies
                 MainClass.log(" ==================== Verify LONG OPERATION =============", ConsoleColor.Green);
                 MainClass.log("==========================================================");
                 /////VERIFY OPERATION LONG
-                string operation = "buy";
+                Operation operation = Operation.buy;
                 //VERIFY INDICATORS ENTRY
                 foreach (var item in MainClass.lstIndicatorsEntry)
                 {
-                    Operation operationBuy = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
                     MainClass.log("Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
                     MainClass.log("Date: " + MainClass.arrayDate[MainClass.arrayPriceOpen.Length - 1]);
-                    MainClass.log("Operation: " + operationBuy.ToString());
+                    MainClass.log("Operation: " + op.ToString());
                     MainClass.log("");
-                    if (operationBuy != Operation.buy)
+                    if (op != Operation.buy)
                     {
-                        operation = "nothing";
-                        MainClass.nothing = true;
+                        operation = Operation.nothing;
+
                         break;
                     }
                 }
 
-                if (MainClass.lstIndicatorsEntryThreshold.Count > 0)
+                /* Verify Threshold Indicators*/
+                if (MainClass.lstIndicatorsEntryThreshold.Count > 0 && operation == Operation.buy)
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     {
@@ -43,60 +44,38 @@ namespace BitBotBackToTheFuture.Strategies
                         MainClass.log("Operation: " + op.ToString());
                         if (op != Operation.allow)
                         {
-                            operation = "nothing";
-                            MainClass.nothing = true;
+                            operation = Operation.nothing;
                             break;
                         }
                     }
                 }
 
                 //VERIFY INDICATORS CROSS
-                if (operation == "buy")
+                if ( MainClass.lstIndicatorsEntryCross.Count > 0 && operation == Operation.buy)
                 {
-                    //Prepare to long                        
-                    while (true)
+                    foreach (var item in MainClass.lstIndicatorsEntryCross)
                     {
-                        MainClass.log("wait operation long...");
-                        MainClass.getCandles();
-                        foreach (var item in MainClass.lstIndicatorsEntryCross)
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        MainClass.log("Indicator Cross: " + item.getName());
+                        MainClass.log("Result1: " + item.getResult());
+                        MainClass.log("Result2: " + item.getResult2());
+                        MainClass.log("Operation: " + op.ToString());
+                        MainClass.log("");
+
+                        if ( (item.getTypeIndicator() == TypeIndicator.Cross && op != Operation.buy) || op != Operation.buy) 
                         {
-                            Operation operationBuy = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
-                            MainClass.log("Indicator Cross: " + item.getName());
-                            MainClass.log("Result1: " + item.getResult());
-                            MainClass.log("Result2: " + item.getResult2());
-                            MainClass.log("Operation: " + operationBuy.ToString());
-                            MainClass.log("");
-
-                            if (item.getTypeIndicator() == TypeIndicator.Cross)
-                            {
-                                if (operationBuy == Operation.buy)
-                                {
-                                    operation = "long";
-                                    break;
-                                }
-                            }
-                            else if (operationBuy != Operation.buy)
-                            {
-                                operation = "long";
-                                break;
-                            }
-                        }
-                        if (MainClass.lstIndicatorsEntryCross.Count == 0)
-                            operation = "long";
-                        if (operation != "buy")
+                            operation = Operation.nothing;
                             break;
-
-                        MainClass.log("wait " + MainClass.interval + "ms");
-                        Thread.Sleep(MainClass.interval);
-
-
+                        }
                     }
                 }
 
-                //VERIFY INDICATORS DECISION
-                if (operation == "long" && MainClass.lstIndicatorsEntryDecision.Count > 0)
+
+                #region indicatorsDecision
+                /*
+                if (MainClass.lstIndicatorsEntryDecision.Count > 0 && operation == Operation.buy)
                 {
-                    operation = "decision";
+
                     foreach (var item in MainClass.lstIndicatorsEntryDecision)
                     {
                         Operation operationBuy = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
@@ -109,12 +88,11 @@ namespace BitBotBackToTheFuture.Strategies
 
 
                         if (MainClass.getValue("indicatorsEntryDecision", item.getName(), "decision") == "enable" && MainClass.getValue("indicatorsEntryDecision", item.getName(), "tendency") == "enable")
-
                         {
                             int decisionPoint = int.Parse(MainClass.getValue("indicatorsEntryDecision", item.getName(), "decisionPoint"));
                             if (item.getResult() >= decisionPoint && item.getTendency() == Tendency.high)
                             {
-                                operation = "long";
+                                operation = 
                                 break;
                             }
                         }
@@ -142,12 +120,13 @@ namespace BitBotBackToTheFuture.Strategies
                         }
 
                     }
-                }
+                }*/
+                #endregion
 
 
                 //EXECUTE OPERATION
-                if (operation == "long" )
-                    MainClass.makeOrder("Buy");
+                if (operation == Operation.buy )
+                    MainClass.makeOrder("Buy",false,"Normal/Surf Buy Order");
 
                 ////////////FINAL VERIFY OPERATION LONG//////////////////
             }
@@ -162,26 +141,25 @@ namespace BitBotBackToTheFuture.Strategies
                 MainClass.log("==========================================================");
                 MainClass.log(" ==================== Verify SHORT OPERATION =============", ConsoleColor.Red);
                 MainClass.log("==========================================================");
-                /////VERIFY OPERATION LONG
-                string operation = "sell";
+                /////VERIFY OPERATION SHORT
+                Operation operation = Operation.sell;
                 //VERIFY INDICATORS ENTRY
                 foreach (var item in MainClass.lstIndicatorsEntry)
                 {
-                    Operation operationBuy = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
                     MainClass.log("Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
-                    MainClass.log("Operation: " + operationBuy.ToString());
+                    MainClass.log("Operation: " + op.ToString());
                     MainClass.log("");
-                    if (operationBuy != Operation.sell)
+                    if (op != Operation.sell)
                     {
-                        operation = "nothing";
-                        MainClass.nothing = true;
+                        operation = Operation.nothing;
                         break;
                     }
                 }
 
-                if (MainClass.lstIndicatorsEntryThreshold.Count > 0 )
+                if (MainClass.lstIndicatorsEntryThreshold.Count > 0 && operation == Operation.sell)
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     {
@@ -192,58 +170,34 @@ namespace BitBotBackToTheFuture.Strategies
                         MainClass.log("Operation: " + op.ToString());
                         if (op != Operation.allow)
                         {
-                            operation = "nothing";
-                            MainClass.nothing = true;
+                            operation = Operation.nothing;
                             break;
                         }
                     }
                 }
 
-                //VERIFY INDICATORS CROSS
-                if (operation == "sell")
+                if (MainClass.lstIndicatorsEntryCross.Count > 0 && operation == Operation.sell)
                 {
-                    //Prepare to long                        
-                    while (true)
+                    foreach (var item in MainClass.lstIndicatorsEntryCross)
                     {
-                        MainClass.log("wait operation short...");
-                        MainClass.getCandles();
-                        foreach (var item in MainClass.lstIndicatorsEntryCross)
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        MainClass.log("Indicator Cross: " + item.getName());
+                        MainClass.log("Result1: " + item.getResult());
+                        MainClass.log("Result2: " + item.getResult2());
+                        MainClass.log("Operation: " + op.ToString());
+                        MainClass.log("");
+
+                        if ((item.getTypeIndicator() == TypeIndicator.Cross && op != Operation.sell) || op != Operation.sell)
                         {
-                            Operation operationBuy = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
-                            MainClass.log("Indicator Cross: " + item.getName());
-                            MainClass.log("Result1: " + item.getResult());
-                            MainClass.log("Result2: " + item.getResult2());
-                            MainClass.log("Operation: " + operationBuy.ToString());
-                            MainClass.log("");
-
-                            if (item.getTypeIndicator() == TypeIndicator.Cross)
-                            {
-                                if (operationBuy == Operation.sell)
-                                {
-                                    operation = "short";
-                                    break;
-                                }
-                            }
-                            else if (operationBuy != Operation.sell)
-                            {
-                                operation = "short";
-                                break;
-                            }
-                        }
-                        if (MainClass.lstIndicatorsEntryCross.Count == 0)
-                            operation = "short";
-                        if (operation != "sell")
+                            operation = Operation.nothing;
                             break;
-
-                        MainClass.log("wait " + MainClass.interval + "ms");
-                        Thread.Sleep(MainClass.interval);
-
-
+                        }
                     }
                 }
 
                 #region indicators decision
                 //VERIFY INDICATORS DECISION
+                /*
                 if (operation == "short" && MainClass.lstIndicatorsEntryDecision.Count > 0)
                 {
                     operation = "decision";
@@ -292,12 +246,12 @@ namespace BitBotBackToTheFuture.Strategies
                         }
 
                     }
-                }
+                }*/
                 #endregion
 
                 //EXECUTE OPERATION
-                if (operation == "short")
-                    MainClass.makeOrder("Sell");
+                if (operation == Operation.sell)
+                    MainClass.makeOrder("Sell",false,"Normal/Surf Buy Order");
 
                 ////////////FINAL VERIFY OPERATION LONG//////////////////
             }

@@ -33,7 +33,7 @@ public static class Http
                 return result;
             }
         }
-        catch (Exception ex)
+        catch (Exception )
         {
             
             return null;
@@ -64,7 +64,7 @@ public static class Http
             //Console.WriteLine(r);
             return r;
         }
-        catch (WebException ex)
+        catch (WebException)
         {
             return null;
         }

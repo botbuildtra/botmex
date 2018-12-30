@@ -4,25 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorADX : IndicatorBase, IIndicator
+public class IndicatorULTOSC : IndicatorBase, IIndicator
 {
-    public double low = 25;
-    public double high = 25;
-    public IndicatorADX()
+
+    public double high = 70;
+    public double low = 30;
+    public double limit;
+
+    public IndicatorULTOSC()
     {
         this.indicator = this;
-        this.period = 14;
     }
 
     public string getName()
     {
-        return "ADX";
+        return "ULTOSC";
     }
-
+    public TypeIndicator getTypeIndicator()
+    {
+        return TypeIndicator.Normal;
+    }
 
     public void setPeriod(int period)
     {
         this.period = period;
+    }
+    public Tendency getTendency()
+    {
+        return this.tendency;
     }
 
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
@@ -31,15 +40,23 @@ public class IndicatorADX : IndicatorBase, IIndicator
         {
             int outBegidx, outNbElement;
             double[] result = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Adx(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, this.period, out outBegidx, out outNbElement, result);
+            TicTacTec.TA.Library.Core.UltOsc(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, 7, 14, 28, out outBegidx, out outNbElement, result);
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double value = result[outNbElement - 1];
             this.result = value;
+
+
+            this.tendency = Tendency.nothing;
+            if (result[outNbElement - 2] < result[outNbElement - 1] && result[outNbElement - 3] < result[outNbElement - 2])
+                this.tendency = Tendency.high;
+            if (result[outNbElement - 2] > result[outNbElement - 1] && result[outNbElement - 3] > result[outNbElement - 2])
+                this.tendency = Tendency.low;
+
+
             if (value > this.high)
                 return Operation.sell;
-            else if (value < this.low)
+            if (value < this.low)
                 return Operation.buy;
-
             return Operation.nothing;
         }
         catch
@@ -58,16 +75,6 @@ public class IndicatorADX : IndicatorBase, IIndicator
         return this.result2;
     }
 
-    public TypeIndicator getTypeIndicator()
-    {
-        return TypeIndicator.Normal;
-    }
-
-    public Tendency getTendency()
-    {
-        return this.tendency;
-    }
-
     public void setHigh(double high)
     {
         this.high = high;
@@ -80,6 +87,6 @@ public class IndicatorADX : IndicatorBase, IIndicator
 
     public void setLimit(double limit)
     {
-        throw new NotImplementedException();
+        this.limit = limit;
     }
 }

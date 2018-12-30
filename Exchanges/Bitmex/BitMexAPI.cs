@@ -209,11 +209,11 @@ namespace BitMEX
             return JsonConvert.DeserializeObject<List<OrderBook>>(res);
         }
 
-        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false, bool marketTaker = false)
+        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false, bool marketTaker = false, string text = "BotMex")
         {
             if(marketTaker)
             {
-                return MarketOrder(Symbol, Side, Quantity);
+                return MarketOrder(Symbol, Side, Quantity, text);
             }
 
             var param = new Dictionary<string, string>();
@@ -228,6 +228,7 @@ namespace BitMEX
                 Price = this.RoundToNearest(Price, 20);
             }
             param["orderQty"] = Quantity.ToString();
+            param["text"] = text;
             param["ordType"] = "Limit";
             if(!force)
                 param["execInst"] = "ParticipateDoNotInitiate";
@@ -238,34 +239,95 @@ namespace BitMEX
             return ret;
         }
 
-        public string MarketOrder(string Symbol, string Side, int Quantity)
+        public string MarketOrder(string Symbol, string Side, int Quantity, string text = "BotMex")
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = Symbol;
             param["side"] = Side;
             param["orderQty"] = Quantity.ToString();
             param["ordType"] = "Market";
+            param["text"] = text;
             String ret = Query("POST", "/order", param, true);
 
-
-
             return ret;
-
-
         }
 
-        public string MarketClose(string Symbol, string Side)
+        public string MarketClose(string Symbol, string Side, string text = "BotMex")
         {
             var param = new Dictionary<string, string>();
             param["symbol"] = Symbol;
             param["side"] = Side;
             param["ordType"] = "Market";
             param["execInst"] = "Close";
-
+            param["text"] = text;
             String ret = Query("POST", "/order", param, true);
             return ret;
         }
 
+        public string CreateStopOrder( string Symbol, string Side, double Quantity, double stopPx, bool Market = false, double Price = 0, string text = "BotMex")
+        {
+            var param = new Dictionary<string, string>();
+            param["symbol"] = Symbol;
+            param["side"] = Side;
+            param["orderQty"] = Quantity.ToString();
+            param["ordType"] = Market ? "Stop" : "StopLimit";
+            if(!Market)
+            {
+                if (Symbol.Contains("XBT"))
+                {
+                    Price = this.RoundToNearest(Price, 2);
+                }
+                else if (Symbol.Equals("ETHUSD"))
+                {
+                    Price = this.RoundToNearest(Price, 20);
+                }
+                param["price"] = Price.ToString().Replace(",", ".");
+            }
+            if (Symbol.Contains("XBT"))
+            {
+                stopPx = this.RoundToNearest(stopPx, 2);
+            }
+            else if (Symbol.Equals("ETHUSD"))
+            {
+                stopPx = this.RoundToNearest(stopPx, 20);
+            }
+            param["stopPx"] = stopPx.ToString().Replace(",", ".");
+            param["execInst"] = "Close,LastPrice";
+            param["text"] = text;
+            String ret = Query("POST", "/order", param, true);
+
+            return ret;
+        }
+
+        public string CancelAllLimitOrders(string symbol, string Note = "" )
+        {
+            List<Order> ords = GetOpenOrders(symbol);
+            if (ords.Count == 0)
+                return "";
+            string orderIds = string.Join(",", from Order ord in ords select ord.OrderId);
+            var param = new Dictionary<string, string>();
+            param["symbol"] = symbol;
+            param["orderID"] = orderIds;
+            param["text"] = Note;
+            String ret = Query("DELETE", "/order",param,true,true);
+
+            return ret;
+        }
+
+        public string CancelAllSLOrders(string symbol, string Note = "")
+        {
+            List<Order> ords = GetOpenSLOrders(symbol);
+            if (ords.Count == 0)
+                return "";
+            string orderIds = string.Join(",", from Order ord in ords select ord.OrderId);
+            var param = new Dictionary<string, string>();
+            param["symbol"] = symbol;
+            param["orderID"] = orderIds;
+            param["text"] = Note;
+            String ret = Query("DELETE", "/order", param, true, true);
+
+            return ret;
+        }
 
         public string CancelAllOpenOrders(string symbol, string Note = "")
         {
@@ -314,7 +376,48 @@ namespace BitMEX
             param["symbol"] = symbol;
             param["reverse"] = true.ToString();
             string res = Query("GET", "/order", param, true);
-            return JsonConvert.DeserializeObject<List<Order>>(res).Where(a => a.OrdStatus == "New" || a.OrdStatus == "PartiallyFilled").OrderByDescending(a => a.TimeStamp).ToList();
+            List<Order> orders = JsonConvert.DeserializeObject<List<Order>>(res).Where(a => a.OrdStatus == "New" || a.OrdStatus == "PartiallyFilled" && (a.OrdType != "Stop" && a.OrdType != "StopLimit")).OrderByDescending(a => a.TimeStamp).ToList();
+            List<Order> returnables = new List<Order>();
+            foreach(Order ord in orders )
+            {
+                if(ord.OrdType != "Stop" && ord.OrdType != "StopLimit" )
+                returnables.Add(ord);
+            }
+            return returnables;
+            //return JsonConvert.DeserializeObject<List<Order>>(res).Where(a => a.OrdStatus == "New" || a.OrdStatus == "PartiallyFilled" && (a.OrdType != "Stop" && a.OrdType != "StopLimit")).OrderByDescending(a => a.TimeStamp).ToList();
+        }
+
+        public List<Order> GetOpenSLOrders(string symbol)
+        {
+            var param = new Dictionary<string, string>();
+            param["symbol"] = symbol;
+            param["reverse"] = true.ToString();
+            string res = Query("GET", "/order", param, true);
+            return JsonConvert.DeserializeObject<List<Order>>(res).Where(a => a.OrdStatus == "New" && (a.OrdType == "Stop" || a.OrdType == "StopLimit")).OrderByDescending(a => a.TimeStamp).ToList();
+        }
+
+        public Order GetOrderById( string orderId)
+        {
+            var param = new Dictionary<string, string>();
+            param["filter"] = "{\"orderID\":\""+orderId+"\"}";
+            string res = Query("GET", "/order", param, true);
+            List<Order> orders = JsonConvert.DeserializeObject<List<Order>>(res).ToList();
+            if(orders.Count > 0)
+                return orders[0];
+
+            return new Order();
+        }
+
+        public string EditSLOrderPx(string OrderId, double stopPx, int Quantity = 0)
+        {
+            var param = new Dictionary<string, string>();
+            param["orderID"] = OrderId;
+            param["stopPx"] = stopPx.ToString();
+            if(Quantity != 0)
+            {
+                param["orderQty"] = Quantity.ToString();
+            }
+            return Query("PUT", "/order", param, true, true);
         }
 
         public string EditOrderPrice(string OrderId, double Price)
@@ -419,14 +522,27 @@ namespace BitMEX
 
     public class Order
     {
+        [JsonProperty("timestamp")]
         public DateTime TimeStamp { get; set; }
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
+        [JsonProperty("ordStatus")]
         public string OrdStatus { get; set; }
+        [JsonProperty("ordType")]
         public string OrdType { get; set; }
+        [JsonProperty("orderID")]
         public string OrderId { get; set; }
+        [JsonProperty("side")]
         public string Side { get; set; }
+        [JsonProperty("price")]
         public double? Price { get; set; }
+        [JsonProperty("orderQty")]
         public int? OrderQty { get; set; }
+        [JsonProperty("displayQty")]
         public int? DisplayQty { get; set; }
+        [JsonProperty("stopPx")]
+        public double? StopPx { get; set; }
+        [JsonProperty("avgPx")]
+        public double? AvgPx { get; set; }
     }
 }

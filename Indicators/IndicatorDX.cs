@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorADX : IndicatorBase, IIndicator
+public class IndicatorDX : IndicatorBase, IIndicator
 {
-    public double low = 25;
-    public double high = 25;
-    public IndicatorADX()
+
+    public double high, low, limit;
+
+    public IndicatorDX()
     {
         this.indicator = this;
         this.period = 14;
@@ -16,14 +17,24 @@ public class IndicatorADX : IndicatorBase, IIndicator
 
     public string getName()
     {
-        return "ADX";
+        return "DX";
     }
-
 
     public void setPeriod(int period)
     {
         this.period = period;
     }
+
+    public TypeIndicator getTypeIndicator()
+    {
+        return TypeIndicator.Normal;
+    }
+
+    public Tendency getTendency()
+    {
+        return this.tendency;
+    }
+
 
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
@@ -31,15 +42,22 @@ public class IndicatorADX : IndicatorBase, IIndicator
         {
             int outBegidx, outNbElement;
             double[] result = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Adx(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, this.period, out outBegidx, out outNbElement, result);
+            TicTacTec.TA.Library.Core.Dx(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, this.period, out outBegidx, out outNbElement, result);
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double value = result[outNbElement - 1];
-            this.result = value;
-            if (value > this.high)
-                return Operation.sell;
-            else if (value < this.low)
-                return Operation.buy;
 
+            this.tendency = Tendency.nothing;
+            if (result[outNbElement - 2] < result[outNbElement - 1] && result[outNbElement - 3] < result[outNbElement - 2])
+                this.tendency = Tendency.high;
+            if (result[outNbElement - 2] > result[outNbElement - 1] && result[outNbElement - 3] > result[outNbElement - 2])
+                this.tendency = Tendency.low;
+
+
+            this.result = value;
+            if (value > 0)
+                return Operation.buy;
+            if (value < 0)
+                return Operation.sell;
             return Operation.nothing;
         }
         catch
@@ -58,16 +76,6 @@ public class IndicatorADX : IndicatorBase, IIndicator
         return this.result2;
     }
 
-    public TypeIndicator getTypeIndicator()
-    {
-        return TypeIndicator.Normal;
-    }
-
-    public Tendency getTendency()
-    {
-        return this.tendency;
-    }
-
     public void setHigh(double high)
     {
         this.high = high;
@@ -80,6 +88,6 @@ public class IndicatorADX : IndicatorBase, IIndicator
 
     public void setLimit(double limit)
     {
-        throw new NotImplementedException();
+        this.limit = limit;
     }
 }

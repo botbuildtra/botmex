@@ -99,7 +99,7 @@ namespace BitBotBackToTheFuture.Strategies
 
                         if (_operation == Operation.buy)
                         {
-                            MainClass.makeOrder("Buy", true);
+                            MainClass.makeOrder("Buy", true,"Scalp Buy Order",true);
                             for (int i = 0; i < 20; i++)
                             {
                                 Thread.Sleep(6000);
@@ -114,7 +114,7 @@ namespace BitBotBackToTheFuture.Strategies
                         }
                         else if (_operation == Operation.sell)
                         {
-                            MainClass.makeOrder("Sell", true);
+                            MainClass.makeOrder("Sell", true,"Scalp Sell Order",true);
                             for (int i = 0; i < 20; i++)
                             {
                                 Thread.Sleep(6000);

@@ -4,22 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorMACD : IndicatorBase, IIndicator
+public class IndicatorPPO : IndicatorBase, IIndicator
 {
+    public double high = 1;
+    public double low = -1;
 
-    public double high;
-    public double low;
     public double limit;
 
-    public IndicatorMACD()
+    public IndicatorPPO()
     {
         this.indicator = this;
     }
-
     public string getName()
     {
-        return "MACD";
+        return "PPO";
     }
+
     public void setPeriod(int period)
     {
         this.period = period;
@@ -27,42 +27,36 @@ public class IndicatorMACD : IndicatorBase, IIndicator
 
     public TypeIndicator getTypeIndicator()
     {
-        return TypeIndicator.Cross;
-    }
+        return TypeIndicator.Normal;
 
+    }
     public double getResult()
     {
         return this.result;
-    }
-
-    public Tendency getTendency()
-    {
-        return this.tendency;
     }
 
     public double getResult2()
     {
         return this.result2;
     }
+    public Tendency getTendency()
+    {
+        return this.tendency;
+    }
+
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
         try
         {
-
-
-            double[] arrayresultTA = new double[arrayPriceClose.Length];
             int outBegidx, outNbElement;
-            double[] macdSignal = new double[arrayPriceClose.Length];
-            double[] macdHist = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Macd(0, arrayPriceClose.Length - 1, arrayPriceClose, 12, 26, 9, out outBegidx, out outNbElement, arrayresultTA, macdSignal, macdHist);
-            double macd = arrayresultTA[outNbElement - 1];
-            double signal = macdSignal[outNbElement - 1];
-            double macdHistory = macdHist[outNbElement - 1];
-            this.result = macd;
-            this.result2 = signal;
-            if (macdHistory < this.low)
+            double[] result = new double[arrayPriceClose.Length];
+            TicTacTec.TA.Library.Core.Ppo(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.low), Convert.ToInt32(this.high), TicTacTec.TA.Library.Core.MAType.Sma, out outBegidx, out outNbElement, result);
+            double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
+            double value = result[outNbElement - 1];
+            this.result = value;
+            if (value > this.low)
                 return Operation.buy;
-            if (macdHistory > this.high)
+            if (value > this.high)
                 return Operation.sell;
 
             return Operation.nothing;

@@ -4,27 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorCCI : IndicatorBase, IIndicator
+public class IndicatorSAR : IndicatorBase, IIndicator
 {
+    private double high;
+    private double low;
+    private double limit;
 
-    public double high = 100;
-    public double low = -100;
-    public double limit;
-
-    public IndicatorCCI()
+    public IndicatorSAR()
     {
         this.indicator = this;
-        this.period = 20;
+    }
+
+    public void setPeriod(int period)
+    {
+        this.period = period;
     }
 
     public TypeIndicator getTypeIndicator()
     {
         return TypeIndicator.Normal;
-
     }
+
     public string getName()
     {
-        return "CCI";
+        return "SAR";
     }
 
     public double getResult()
@@ -36,51 +39,35 @@ public class IndicatorCCI : IndicatorBase, IIndicator
     {
         return this.result2;
     }
-
     public Tendency getTendency()
     {
         return this.tendency;
     }
 
+    public double[] arrayresultTA;
+
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
         try
         {
-            int outBegidx, outNbElement;
-            double[] arrayresultTA = new double[arrayPriceClose.Length];
+            int outBegidx, outNbElement;            
             arrayresultTA = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Cci(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, this.period, out outBegidx, out outNbElement, arrayresultTA);
+            TicTacTec.TA.Library.Core.Sar(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, 0.02, 0.2, out outBegidx, out outNbElement, arrayresultTA);            
             double value = arrayresultTA[outNbElement - 1];
+            double lastValue = arrayresultTA[outNbElement - 2];
+            double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             this.result = value;
-
-            this.tendency = Tendency.nothing;
-            if (arrayresultTA[outNbElement - 2] < arrayresultTA[outNbElement - 1] && arrayresultTA[outNbElement - 3] < arrayresultTA[outNbElement - 2])
-                this.tendency = Tendency.high;
-            if (arrayresultTA[outNbElement - 2] > arrayresultTA[outNbElement - 1] && arrayresultTA[outNbElement - 3] > arrayresultTA[outNbElement - 2])
-                this.tendency = Tendency.low;
-
-
-            if (value > this.high)
-                return Operation.sell;
-            if (value < -this.low)
+            this.result2 = lastValue;
+            if (value < priceClose && lastValue > arrayPriceClose[arrayPriceClose.Length - 2])
                 return Operation.buy;
+            if (value > priceClose && lastValue < arrayPriceClose[arrayPriceClose.Length - 2])
+                return Operation.sell;
             return Operation.nothing;
         }
         catch
         {
             return Operation.nothing;
         }
-    }
-
-    public void setPeriod(int period)
-    {
-        this.period = period;
-    }
-
-    public void setData(int high, int low)
-    {
-        this.high = high;
-        this.low = low;
     }
 
     public void setHigh(double high)
@@ -97,5 +84,4 @@ public class IndicatorCCI : IndicatorBase, IIndicator
     {
         this.limit = limit;
     }
-
 }

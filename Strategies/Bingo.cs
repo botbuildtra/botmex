@@ -26,8 +26,8 @@ namespace BitBotBackToTheFuture.Strategies
 
             if (Math.Abs(MainClass.getPosition()) == 0 && Math.Abs(MainClass.getOpenOrderQty()) == 0)
             {
-                MainClass.makeOrder("Buy", true);
-                MainClass.makeOrder("Sell", true);
+                MainClass.makeOrder("Buy", true,"Bingo Buy Order", true);
+                MainClass.makeOrder("Sell", true,"Bingo Sell Order",true);
                 MainClass.log("wait " + 60000 * 5 + "ms", ConsoleColor.Blue);
                 Thread.Sleep(60000 * 5);
                 MainClass.bitMEXApi.CancelAllOpenOrders(MainClass.pair);

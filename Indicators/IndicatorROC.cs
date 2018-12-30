@@ -4,19 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
+public class IndicatorROC : IndicatorBase, IIndicator
 {
-    public double high = 80;
-    public double low = 20;
     public double limit;
+    public double high, low = 0;
 
-    public IndicatorSTOCHRSI()
+    public IndicatorROC()
     {
         this.indicator = this;
+        this.period = 9;
     }
     public string getName()
     {
-        return "STOCHRSI";
+        return "ROC";
     }
 
     public TypeIndicator getTypeIndicator()
@@ -49,18 +49,22 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         {
             int outBegidx, outNbElement;
             double[] arrayresultTA = new double[arrayPriceClose.Length];
+            arrayresultTA = new double[arrayPriceClose.Length];
+            TicTacTec.TA.Library.Core.Roc(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, out outBegidx, out outNbElement, arrayresultTA);
+            double value = arrayresultTA[outNbElement - 1];
 
-            double[] outK = new double[arrayPriceClose.Length];
-            double[] outD = new double[arrayPriceClose.Length];
 
-            TicTacTec.TA.Library.Core.StochRsi(0, arrayPriceClose.Length - 1, arrayPriceClose, period, 3, 3, TicTacTec.TA.Library.Core.MAType.Mama, out outBegidx, out outNbElement, outK, outD);
-            double stochRsiK = outK[outNbElement - 1];
-            double stochRsiD = outD[outNbElement - 1];
-            this.result = stochRsiK;
-            this.result2 = stochRsiD;
-            if (stochRsiK > this.high && stochRsiD > this.high)
+            this.tendency = Tendency.nothing;
+            if (arrayresultTA[outNbElement - 2] < arrayresultTA[outNbElement - 1] && arrayresultTA[outNbElement - 3] < arrayresultTA[outNbElement - 2])
+                this.tendency = Tendency.high;
+            if (arrayresultTA[outNbElement - 2] > arrayresultTA[outNbElement - 1] && arrayresultTA[outNbElement - 3] > arrayresultTA[outNbElement - 2])
+                this.tendency = Tendency.low;
+
+
+            this.result = value;
+            if (value > this.high)
                 return Operation.sell;
-            if (stochRsiK < this.low && stochRsiD < this.low)
+            if (value < this.low)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -68,12 +72,6 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
-    }
-
-    public void setData(int high, int low )
-    {
-        this.high = high;
-        this.low = low;
     }
 
     public void setHigh(double high)

@@ -4,19 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
+public class IndicatorMOM : IndicatorBase, IIndicator
 {
-    public double high = 80;
-    public double low = 20;
-    public double limit;
 
-    public IndicatorSTOCHRSI()
+    public double limit;
+    public double high = 100;
+    public double low = -100;
+    public IndicatorMOM()
     {
         this.indicator = this;
+        this.period = 10;
     }
     public string getName()
     {
-        return "STOCHRSI";
+        return "MOM";
+    }
+
+    public void setPeriod(int period)
+    {
+        this.period = period;
     }
 
     public TypeIndicator getTypeIndicator()
@@ -24,11 +30,6 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         return TypeIndicator.Normal;
     }
 
-    public void setPeriod(int period)
-    {
-        this.period = period;
-
-    }
     public double getResult()
     {
         return this.result;
@@ -48,19 +49,23 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         try
         {
             int outBegidx, outNbElement;
-            double[] arrayresultTA = new double[arrayPriceClose.Length];
+            double[] result = new double[arrayPriceClose.Length];
+            TicTacTec.TA.Library.Core.Mom(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, out outBegidx, out outNbElement, result);
+            double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
+            double value = result[outNbElement - 1];
+            this.result = value;
 
-            double[] outK = new double[arrayPriceClose.Length];
-            double[] outD = new double[arrayPriceClose.Length];
 
-            TicTacTec.TA.Library.Core.StochRsi(0, arrayPriceClose.Length - 1, arrayPriceClose, period, 3, 3, TicTacTec.TA.Library.Core.MAType.Mama, out outBegidx, out outNbElement, outK, outD);
-            double stochRsiK = outK[outNbElement - 1];
-            double stochRsiD = outD[outNbElement - 1];
-            this.result = stochRsiK;
-            this.result2 = stochRsiD;
-            if (stochRsiK > this.high && stochRsiD > this.high)
+            this.tendency = Tendency.nothing;
+            if (result[outNbElement - 2] < result[outNbElement - 1] && result[outNbElement - 3] < result[outNbElement - 2])
+                this.tendency = Tendency.high;
+            if (result[outNbElement - 2] > result[outNbElement - 1] && result[outNbElement - 3] > result[outNbElement - 2])
+                this.tendency = Tendency.low;
+
+
+            if (value > 100)
                 return Operation.sell;
-            if (stochRsiK < this.low && stochRsiD < this.low)
+            if (value < -100)
                 return Operation.buy;
             return Operation.nothing;
         }
@@ -68,12 +73,6 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         {
             return Operation.nothing;
         }
-    }
-
-    public void setData(int high, int low )
-    {
-        this.high = high;
-        this.low = low;
     }
 
     public void setHigh(double high)

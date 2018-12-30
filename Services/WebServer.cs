@@ -21,7 +21,7 @@ public class WebServer
                 StringBuilder sb = new StringBuilder();
 
 
-                sb.AppendLine(System.IO.File.ReadAllText(MainClass.location + "header.html") );
+                sb.AppendLine(System.IO.File.ReadAllText(MainClass.location + "Web" + System.IO.Path.DirectorySeparatorChar + "header.html") );
 
 
                 double perc = 0;
@@ -99,7 +99,6 @@ public class WebServer
 
                 String indicatorsEntry = "";
                 String indicatorsEntryCross = "";
-                String indicatorsEntryDecision = "";
                 String indicatorsEntryThreshold = "";
 
                 foreach (var item in MainClass.lstIndicatorsEntry)
@@ -107,25 +106,22 @@ public class WebServer
 
                 foreach (var item in MainClass.lstIndicatorsEntryCross)
                     indicatorsEntryCross += item.getName() + " ";
-                foreach (var item in MainClass.lstIndicatorsEntryDecision)
-                    indicatorsEntryDecision += item.getName() + " ";
 
                 foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     indicatorsEntryThreshold += item.getName() + " ";
 
                 sb.AppendLine("Indicators Entry: <b>" + indicatorsEntry + "</b><br/>");
                 sb.AppendLine("Indicators Entry Cross: <b>" + indicatorsEntryCross + "</b><br/>");
-                sb.AppendLine("Indicators Entry Decision: <b>" + indicatorsEntryDecision + "</b><br/>");
                 sb.AppendLine("Indicators Entry Threshold: <b>" + indicatorsEntryThreshold + "</b><br/>");
 
 
-                sb.AppendLine(System.IO.File.ReadAllText(MainClass.location + "footer.html"));
+                sb.AppendLine(System.IO.File.ReadAllText(MainClass.location + "Web" + System.IO.Path.DirectorySeparatorChar + "footer.html"));
 
                 sb.AppendLine("</body></html>");
 
                 return sb.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return "";

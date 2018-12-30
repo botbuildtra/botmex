@@ -4,21 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
+public class IndicatorSTOCH : IndicatorBase, IIndicator
 {
-    public double high = 80;
-    public double low = 20;
-    public double limit;
 
-    public IndicatorSTOCHRSI()
+    private double high = 80;
+    private double low = 20;
+    private double limit;
+
+    public IndicatorSTOCH()
     {
         this.indicator = this;
     }
     public string getName()
     {
-        return "STOCHRSI";
+        return "STOCH";
     }
-
     public TypeIndicator getTypeIndicator()
     {
         return TypeIndicator.Normal;
@@ -27,8 +27,9 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
     public void setPeriod(int period)
     {
         this.period = period;
-
     }
+
+
     public double getResult()
     {
         return this.result;
@@ -52,12 +53,13 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
 
             double[] outK = new double[arrayPriceClose.Length];
             double[] outD = new double[arrayPriceClose.Length];
-
-            TicTacTec.TA.Library.Core.StochRsi(0, arrayPriceClose.Length - 1, arrayPriceClose, period, 3, 3, TicTacTec.TA.Library.Core.MAType.Mama, out outBegidx, out outNbElement, outK, outD);
+            TicTacTec.TA.Library.Core.Stoch(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, 14, 3, TicTacTec.TA.Library.Core.MAType.Sma, 14, TicTacTec.TA.Library.Core.MAType.Sma, out outBegidx, out outNbElement, outK, outD);
             double stochRsiK = outK[outNbElement - 1];
             double stochRsiD = outD[outNbElement - 1];
+
             this.result = stochRsiK;
             this.result2 = stochRsiD;
+
             if (stochRsiK > this.high && stochRsiD > this.high)
                 return Operation.sell;
             if (stochRsiK < this.low && stochRsiD < this.low)
@@ -70,7 +72,7 @@ public class IndicatorSTOCHRSI : IndicatorBase, IIndicator
         }
     }
 
-    public void setData(int high, int low )
+    public void setData(int high, int low)
     {
         this.high = high;
         this.low = low;
