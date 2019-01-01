@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\ILRepack.2.0.16\build\ILRepack.props" Condition="Exists('packages\ILRepack.2.0.16\build\ILRepack.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -148,4 +149,21 @@
   <ItemGroup />
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <MergeAssemblies Include="bin\Debug\BitBotBackToTheFuture.exe" />
+      <MergeAssemblies Include="bin\Debug\*.dll" />
+      <CopyBinFiles Include="$(OutputPath)/Botmex.exe"/>
+      <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html"/>
+    </ItemGroup>
+    <PropertyGroup>
+      <OutputAssembly>$(OutputPath)\Botmex.exe</OutputAssembly>
+      <Merger Condition="('$(OS)' == 'Windows_NT')"> "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
+      <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
+    </PropertyGroup>
+    <Message Text="MERGING: @(MergeAssemblies-&gt;'%(Filename)') into $(OutputAssembly)" Importance="High" />
+    <Exec Command="$(Merger) /lib:/usr/lib/mono/4.7.1-api/ /lib:packages/Google.Protobuf.3.6.1/lib/net45 /lib:packages/Newtonsoft.Json.12.0.1/lib/net45 /lib:/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/ /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies-&gt;'&quot;%(RelativeDir)%(Filename)%(Extension)&quot;', ' ')" />
+    <Copy SourceFiles="@(CopyWebFiles)" DestinationFolder="$(OutputPath)/Packed/Web"/> 
+    <Copy SourceFiles="@(CopyBinFiles)" DestinationFolder="$(OutputPath)/Packed"/> 
+  </Target>
 </Project>
