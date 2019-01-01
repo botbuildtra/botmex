@@ -151,8 +151,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <ItemGroup>
-      <MergeAssemblies Include="bin\Debug\BitBotBackToTheFuture.exe" />
-      <MergeAssemblies Include="bin\Debug\*.dll" />
+      <MergeAssemblies Include="bin\$(Configuration)\BitBotBackToTheFuture.exe" />
+      <MergeAssemblies Include="bin\$(Configuration)\*.dll" />
       <CopyBinFiles Include="$(OutputPath)/Botmex.exe;sample-key.json"/>
       <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html"/>
     </ItemGroup>
