@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\ILRepack.2.0.16\build\ILRepack.props" Condition="Exists('packages\ILRepack.2.0.16\build\ILRepack.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>BitBotBackToTheFuture</RootNamespace>
+    <AssemblyName>BitBotBackToTheFuture</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>packages\System.Reactive.4.1.2\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="MySql.Data">
+      <HintPath>packages\MySql.Data.8.0.13\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="TA-Lib-Core">
+      <HintPath>packages\TA-Lib.0.5.0.3\lib\TA-Lib-Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog">
+      <HintPath>packages\Serilog.2.7.1\lib\net46\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Websocket.Client">
+      <HintPath>packages\Websocket.Client.1.0.6\lib\netstandard2.0\Websocket.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Bitmex.Client.Websocket">
+      <HintPath>packages\Bitmex.Client.Websocket.1.0.38\lib\netstandard2.0\Bitmex.Client.Websocket.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BackTesting\BackTest.cs" />
+    <Compile Include="Database\ClassDBcs.cs" />
+    <Compile Include="Database\Database.cs" />
+    <Compile Include="Services\Http.cs" />
+    <Compile Include="Indicators\IIndicator.cs" />
+    <Compile Include="Indicators\IndicatorADX.cs" />
+    <Compile Include="Indicators\IndicatorBase.cs" />
+    <Compile Include="Indicators\IndicatorBBANDS.cs" />
+    <Compile Include="Indicators\IndicatorCCI.cs" />
+    <Compile Include="Indicators\IndicatorChaikin.cs" />
+    <Compile Include="Indicators\IndicatorCMO.cs" />
+    <Compile Include="Indicators\IndicatorDI.cs" />
+    <Compile Include="Indicators\IndicatorDM.cs" />
+    <Compile Include="Indicators\IndicatorDX.cs" />
+    <Compile Include="Indicators\IndicatorMA.cs" />
+    <Compile Include="Indicators\IndicatorMACD.cs" />
+    <Compile Include="Indicators\IndicatorMFI.cs" />
+    <Compile Include="Indicators\IndicatorMOM.cs" />
+    <Compile Include="Indicators\IndicatorPPO.cs" />
+    <Compile Include="Indicators\IndicatorROC.cs" />
+    <Compile Include="Indicators\IndicatorRSI.cs" />
+    <Compile Include="Indicators\IndicatorCAROL.cs" />
+    <Compile Include="Indicators\IndicatorSAR.cs" />
+    <Compile Include="Indicators\IndicatorSTOCH.cs" />
+    <Compile Include="Indicators\IndicatorSTOCHRSI.cs" />
+    <Compile Include="Indicators\IndicatorTrix.cs" />
+    <Compile Include="Indicators\IndicatorULTOSC.cs" />
+    <Compile Include="Indicators\IndicatorX.cs" />
+    <Compile Include="Indicators\IndicatorWILLR.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Exchanges\Bitmex\BitMexAPI.cs" />
+    <Compile Include="Services\WebServer.cs" />
+    <Compile Include="Indicators\IndicatorATR.cs" />
+    <Compile Include="Strategies\Bingo.cs" />
+    <Compile Include="Strategies\Normal.cs" />
+    <Compile Include="Strategies\Scalper.cs" />
+    <Compile Include="Indicators\IndicatorCAROLBEBENDO.cs" />
+    <Compile Include="StopLoss\MarketClose.cs" />
+    <Compile Include="StopLoss\OrderBook.cs" />
+    <Compile Include="WebSocket\bitmex.cs" />
+    <Compile Include="Strategies\Strategy.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Web\footer.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Web\header.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="sample-key.json">
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
