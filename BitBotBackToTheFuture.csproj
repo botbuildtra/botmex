@@ -37,7 +37,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bitmex.Client.Websocket, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Bitmex.Client.Websocket.1.0.39\lib\netstandard2.0\Bitmex.Client.Websocket.dll</HintPath>
+      <HintPath>packages\Bitmex.Client.Websocket.1.0.38\lib\netstandard2.0\Bitmex.Client.Websocket.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
