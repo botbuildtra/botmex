@@ -36,6 +36,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bitmex.Client.Websocket, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Bitmex.Client.Websocket.1.0.39\lib\netstandard2.0\Bitmex.Client.Websocket.dll</HintPath>
+    </Reference>
     <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
@@ -80,9 +83,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="Websocket.Client">
       <HintPath>packages\Websocket.Client.1.0.6\lib\netstandard2.0\Websocket.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Bitmex.Client.Websocket">
-      <HintPath>packages\Bitmex.Client.Websocket.1.0.38\lib\netstandard2.0\Bitmex.Client.Websocket.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -153,18 +153,18 @@
     <ItemGroup>
       <MergeAssemblies Include="bin\$(Configuration)\BitBotBackToTheFuture.exe" />
       <MergeAssemblies Include="bin\$(Configuration)\*.dll" />
-      <CopyBinFiles Include="$(OutputPath)/Botmex.exe;sample-key.json"/>
-      <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html"/>
+      <CopyBinFiles Include="$(OutputPath)/Botmex.exe;sample-key.json" />
+      <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputPath)\Botmex.exe</OutputAssembly>
       <Merger Condition="('$(OS)' == 'Windows_NT')"> "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
       <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
     </PropertyGroup>
-    <Message Text="MERGING: @(MergeAssemblies-&gt;'%(Filename)') into $(OutputAssembly)" Importance="High" />
-    <Exec Command="$(Merger) /lib:/usr/lib/mono/4.7.1-api/ /lib:packages/Google.Protobuf.3.6.1/lib/net45 /lib:packages/Newtonsoft.Json.12.0.1/lib/net45 /lib:/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/ /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies-&gt;'&quot;%(RelativeDir)%(Filename)%(Extension)&quot;', ' ')" />
-    <Copy SourceFiles="@(CopyWebFiles)" DestinationFolder="$(OutputPath)/Packed/Web"/> 
-    <Copy SourceFiles="@(CopyBinFiles)" DestinationFolder="$(OutputPath)/Packed"/>
+    <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
+    <Exec Command="$(Merger) /lib:/usr/lib/mono/4.7.1-api/ /lib:packages/Google.Protobuf.3.6.1/lib/net45 /lib:packages/Newtonsoft.Json.12.0.1/lib/net45 /lib:/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/ /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(RelativeDir)%(Filename)%(Extension)&quot;', ' ')" />
+    <Copy SourceFiles="@(CopyWebFiles)" DestinationFolder="$(OutputPath)/Packed/Web" />
+    <Copy SourceFiles="@(CopyBinFiles)" DestinationFolder="$(OutputPath)/Packed" />
     <MakeDir Directories="$(OutputPath)/Deploy" />
     <ZipDirectory SourceDirectory="$(OutputPath)/Packed" DestinationFile="$(OutputPath)/Deploy/botmex.zip" Overwrite="true" />
   </Target>
