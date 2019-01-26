@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/tperalta82/BitBotBackToTheFuture.svg?branch=master)](https://travis-ci.org/tperalta82/BitBotBackToTheFuture)
+[![Build Status](https://travis-ci.org/tperalta82/BitBotBackToTheFuture.svg?branch=develop)](https://travis-ci.org/tperalta82/BitBotBackToTheFuture)
 
 # BitBotBackToTheFuture
 Bot of Bitmax
