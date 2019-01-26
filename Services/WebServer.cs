@@ -109,7 +109,7 @@ public class WebServer
                 String indicatorsEntry = "";
                 String indicatorsEntryCross = "";
                 String indicatorsEntryThreshold = "";
-
+                String indicatorsInvert = "";
                 foreach (var item in MainClass.lstIndicatorsEntry)
                     indicatorsEntry += item.getName() + " ";
 
@@ -119,10 +119,13 @@ public class WebServer
                 foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     indicatorsEntryThreshold += item.getName() + " ";
 
+                foreach (var item in MainClass.lstIndicatorsInvert)
+                    indicatorsInvert += item.getName() + " ";
+
                 sb.AppendLine("Indicators Entry: <b>" + indicatorsEntry + "</b><br/>");
                 sb.AppendLine("Indicators Entry Cross: <b>" + indicatorsEntryCross + "</b><br/>");
                 sb.AppendLine("Indicators Entry Threshold: <b>" + indicatorsEntryThreshold + "</b><br/>");
-
+                sb.AppendLine("Indicators Invert: <b>" + indicatorsInvert + "</b><br/>");
 
                 sb.AppendLine(System.IO.File.ReadAllText(MainClass.location + "Web" + System.IO.Path.DirectorySeparatorChar + "footer.html"));
 

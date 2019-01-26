@@ -20,7 +20,7 @@ public enum TendencyMarket
 
 public class MainClass
 {
-    public static string version = "0.0.3.0";
+    public static string version = "0.0.4.0";
     public static string location = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + System.IO.Path.DirectorySeparatorChar;
     public static bool debug = false;
     public static string bitmexKey = "";
@@ -112,15 +112,11 @@ public class MainClass
             log("http://botmex.ninja/");
             log("GITHUB http://github.com/tperalta82/BitBotBackToTheFuture", ConsoleColor.Blue);
             log(" ******* DONATE ********* ");
-            log("BTC ");
-            log("BCH ");
-            log("ETH ");
-            log("ETC ");
-            log("LTC ");
+            log("BTC: 3NoXn5PHyBAxxQAc2LCruWoEhthWsAdSR8");
+            log("LTC: MKPZ2XZep3pTfggjBpiSgjRofDAEbBC8qp ");
+            log("ETH: 0x172bdb1ab580128d42993c00a60AF99b726eaF81");
             log("Load config...");
-            log("Considere DOAR para o projeto!", ConsoleColor.Green);
-            log("Vamos aguardar 10 min para voce doar ;) ... ", ConsoleColor.Blue);
-            log("ATENCAO, PARA FACILITAR A DOACAO DAQUI A 30 SEGUNDOS VAMOS ABRIR UMA PAGINA PARA VOCE!", ConsoleColor.Green);
+            log("Considere DOAR para o projeto, senão oh, fico sem maconha e as ideias boas vão com o caralho!", ConsoleColor.Green);
 
             String jsonConfig = System.IO.File.ReadAllText(location + "key.json");
             JContainer config = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
