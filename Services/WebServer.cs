@@ -15,6 +15,15 @@ public class WebServer
         {
             try
             {
+
+                MainClass.log(request.HttpMethod);
+
+                for( int i = 0; i < request.QueryString.Count; i++ )
+                {
+                    MainClass.log(request.QueryString.GetKey(0));
+                    MainClass.log(request.QueryString.Get(0));
+                }
+
                 System.Data.DataSet ds = new System.Data.DataSet();
                 ds.ReadXml(MainClass.location + "bd.xml");
 

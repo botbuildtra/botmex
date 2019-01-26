@@ -4,24 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class IndicatorMA : IndicatorBase, IIndicator
+public class IndicatorMATENDENCY : IndicatorBase, IIndicator
 {
     public double ilong;
     public double ishort;
     public double limit;
     public string timeGraph = MainClass.timeGraph;
-    public IndicatorMA()
+    public IndicatorMATENDENCY()
     {
         this.indicator = this;
     }
 
-    public void Setup(Dictionary<string, string> cfg)
+    public void Setup(Dictionary<string,string> cfg )
     {
         if (cfg.ContainsKey("long"))
-            setLong(int.Parse(cfg["long"]));
+            setHigh(int.Parse(cfg["long"]));
 
         if (cfg.ContainsKey("short"))
-            setShort(int.Parse(cfg["short"]));
+            setLow(int.Parse(cfg["short"]));
 
         if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
             timeGraph = cfg["timegraph"].Trim();
@@ -44,7 +44,7 @@ public class IndicatorMA : IndicatorBase, IIndicator
 
     public string getName()
     {
-        return "MA";
+        return "MATENDENCY";
     }
 
     public double getResult()
@@ -68,7 +68,7 @@ public class IndicatorMA : IndicatorBase, IIndicator
         {
             int outBegidxLonga, outNbElementLonga, outBegidxCurta, outNbElementCurta;
             double[] arrayLonga = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.ilong) , TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxLonga, out outNbElementLonga, arrayLonga);
+            TicTacTec.TA.Library.Core.MovingAverage(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.ilong), TicTacTec.TA.Library.Core.MAType.Ema, out outBegidxLonga, out outNbElementLonga, arrayLonga);
             double value = arrayLonga[outNbElementLonga - 1];
             this.result = value;
 
@@ -87,13 +87,24 @@ public class IndicatorMA : IndicatorBase, IIndicator
             if (op == 3)
                 return Operation.nothing;*/
 
+            if (value2 > value)
+            {
+                return Operation.buy;
+            }
 
-            if ((arrayLonga[outNbElementLonga - 2] >= arrayCurta[outNbElementCurta - 2]) && arrayCurta[outNbElementCurta - 1] > arrayLonga[outNbElementLonga - 1])
+            if( value > value2)
+            {
+                return Operation.sell;
+            }
+
+            return Operation.nothing;
+
+            /*if ((arrayLonga[outNbElementLonga - 2] >= arrayCurta[outNbElementCurta - 2]) && arrayCurta[outNbElementCurta - 1] > arrayLonga[outNbElementLonga - 1])
                 return Operation.buy;
             if ((arrayLonga[outNbElementLonga - 2] <= arrayCurta[outNbElementCurta - 2]) && arrayCurta[outNbElementCurta - 1] < arrayLonga[outNbElementLonga - 1])
                 return Operation.sell;
 
-            return Operation.nothing;
+            return Operation.nothing;*/
         }
         catch
         {
@@ -101,14 +112,14 @@ public class IndicatorMA : IndicatorBase, IIndicator
         }
     }
 
-    public void setLong(double ilong)
+    public void setHigh(double high)
     {
-        this.ilong = ilong;
+        this.ilong = high;
     }
 
-    public void setShort(double ishort)
+    public void setLow(double low)
     {
-        this.ishort = ishort;
+        this.ishort = low;
     }
 
     public void setLimit(double limit)

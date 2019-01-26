@@ -10,17 +10,38 @@ public class IndicatorDI : IndicatorBase, IIndicator
     private double high;
     private double low;
     private double limit;
-
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorDI()
     {
         this.indicator = this;
         this.period = 14;
     }
 
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("high"))
+            setHigh(int.Parse(cfg["high"]));
+
+        if (cfg.ContainsKey("low"))
+            setLow(int.Parse(cfg["low"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public string getName()
     {
         return "DI";
     }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
+    }
+
     public void setPeriod(int period)
     {
         this.period = period;

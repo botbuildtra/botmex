@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BitBotBackToTheFuture
@@ -9,9 +10,9 @@ namespace BitBotBackToTheFuture
     public class BackTest
     {
 
-        private static string symbol = "XBTUSD";
+        /*private static string symbol = "XBTUSD";
         private static int sizeArrayCandles = 500;
-        private static  string size = "5m";
+        private static  string size = "5m";*/
 
 
         public static double[] SubArray(double[] data, int index, int length)
@@ -23,75 +24,154 @@ namespace BitBotBackToTheFuture
 
         public static void run()
         {
-
-            MainClass.arrayPriceClose = new double[sizeArrayCandles];
-            MainClass.arrayPriceHigh = new double[sizeArrayCandles];
-            MainClass.arrayPriceLow = new double[sizeArrayCandles];
-            MainClass.arrayPriceVolume = new double[sizeArrayCandles];
-            MainClass.arrayPriceOpen = new double[sizeArrayCandles];
-            MainClass.arrayDate = new DateTime[sizeArrayCandles];
-
-            List<BitMEX.Candle> lstCandle = MainClass.bitMEXApi.GetCandleHistory(symbol, sizeArrayCandles, size, true);
-
-            int i = 0;
-            foreach (var candle in lstCandle)
+            while(true)
             {
-                MainClass.arrayPriceClose[i] = (double)candle.close;
-                MainClass.arrayPriceHigh[i] = (double)candle.high;
-                MainClass.arrayPriceLow[i] = (double)candle.low;
-                MainClass.arrayPriceVolume[i] = (double)candle.volume;
-                MainClass.arrayPriceOpen[i] = (double)candle.open;
-                MainClass.arrayDate[i] = (DateTime)candle.TimeStamp;
-                i++;
+                try
+                {
+                    MainClass.log("BACKTESTING....");
+                    MainClass.getCandles(MainClass.timeGraph, false);
+                    int maxContracts = MainClass.limiteOrder * MainClass.qtdyContacts;
+                    bool operation = false;
+                    Operation _operation = Operation.nothing;
+                    int positions = MainClass.getPosition();
+
+                    if (MainClass.lstIndicatorsEntry.Count == 0)
+                    {
+                        throw new Exception("Scalper sem indicadores nao funciona ... foda-se!");
+                    }
+
+
+                    if (MainClass.lstIndicatorsEntryThreshold.Count > 0)
+                    {
+                        foreach (var item in MainClass.lstIndicatorsEntryThreshold)
+                        {
+                            Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
+                            MainClass.log("Threshold Indicator: " + item.getName());
+                            MainClass.log("Result1: " + item.getResult());
+                            MainClass.log("Result2: " + item.getResult2());
+                            MainClass.log("Operation: " + op.ToString());
+                            /*if (op != Operation.allow)
+                            {
+                                _operation = Operation.nothing;
+                                break;
+                            }*/
+                        }
+                    }
+
+                    foreach (var item in MainClass.lstIndicatorsEntry)
+                    {
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
+
+                        MainClass.log("Indicator: " + item.getName());
+                        MainClass.log("Result1: " + item.getResult());
+                        MainClass.log("Result2: " + item.getResult2());
+                        MainClass.log("Operation: " + op.ToString());
+                        MainClass.log("");
+
+                        if (!operation)
+                        {
+                            _operation = op;
+
+                            operation = true;
+                        }
+                        else if (_operation != op)
+                        {
+                            _operation = Operation.nothing;
+                            break;
+                        }
+                    }
+
+                    if (MainClass.lstIndicatorsEntryThreshold.Count > 0 && _operation != Operation.nothing)
+                    {
+                        foreach (var item in MainClass.lstIndicatorsEntryThreshold)
+                        {
+                            Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
+                            MainClass.log("Threshold Indicator: " + item.getName());
+                            MainClass.log("Result1: " + item.getResult());
+                            MainClass.log("Result2: " + item.getResult2());
+                            MainClass.log("Operation: " + op.ToString());
+                            if (op != Operation.allow)
+                            {
+                                _operation = Operation.nothing;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (MainClass.lstIndicatorsEntryCross.Count > 0 && _operation != Operation.nothing)
+                    {
+                        foreach (var item in MainClass.lstIndicatorsEntryCross)
+                        {
+                            Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
+                            MainClass.log("Cross Indicator: " + item.getName());
+                            MainClass.log("Result1: " + item.getResult());
+                            MainClass.log("Result2: " + item.getResult2());
+                            MainClass.log("Operation: " + op.ToString());
+                            if (_operation != op)
+                            {
+                                _operation = Operation.nothing;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (_operation != Operation.nothing)
+                    {
+
+                        if (Math.Abs(positions) < maxContracts && Math.Abs(MainClass.getOpenOrderQty()) == 0)
+                        {
+                            if (_operation == Operation.buy)
+                            {
+                                MainClass.log("Would have tried to buy at: " + MainClass.getPriceActual("Buy"));
+                                /*return;
+                                MainClass.makeOrder("Buy", true, "Scalp Buy Order", true);
+                                for (int i = 0; i < 20; i++)
+                                {
+                                    Thread.Sleep(6000);
+                                    if (Math.Abs(MainClass.getPosition()) > 0)
+                                    {
+                                        MainClass.fixOrdersPosition();
+                                        break;
+                                    }
+                                }
+                                if (Math.Abs(MainClass.getPosition()) == 0)
+                                    MainClass.bitMEXApi.CancelAllOpenOrders(MainClass.pair);*/
+                            }
+                            else if (_operation == Operation.sell)
+                            {
+                                MainClass.log("Would have tried to sell at: " + MainClass.getPriceActual("Sell"));
+                                /*return;
+                                MainClass.makeOrder("Sell", true, "Scalp Sell Order", true);
+                                for (int i = 0; i < 20; i++)
+                                {
+                                    Thread.Sleep(6000);
+                                    if (Math.Abs(MainClass.getPosition()) > 0)
+                                    {
+                                        MainClass.fixOrdersPosition();
+                                        break;
+                                    }
+                                }
+                                if (Math.Abs(MainClass.getPosition()) == 0)
+                                    MainClass.bitMEXApi.CancelAllOpenOrders(MainClass.pair);*/
+                            }
+                        }
+
+                    }
+
+                    MainClass.log("Sleeping");
+                    Thread.Sleep(MainClass.interval);
+                }
+                catch( Exception e)
+                {
+                    MainClass.log(e.StackTrace.ToString());
+                    MainClass.log(e.Message);
+                    MainClass.log(e.ToString());
+                }
+
             }
 
-            Array.Reverse(MainClass.arrayPriceClose);
-            Array.Reverse(MainClass.arrayPriceHigh);
-            Array.Reverse(MainClass.arrayPriceLow);
-            Array.Reverse(MainClass.arrayPriceVolume);
-            Array.Reverse(MainClass.arrayPriceOpen);
-            Array.Reverse(MainClass.arrayDate);
 
-
-
-
-            for ( i = 10; i < sizeArrayCandles; i++)
-            {
-
-                IndicatorSAR sar = new IndicatorSAR();
-                IndicatorCCI cci = new IndicatorCCI();
-                Operation result = sar.GetOperation(SubArray(MainClass.arrayPriceOpen, 0, i), SubArray(MainClass.arrayPriceClose, 0, i), SubArray(MainClass.arrayPriceLow, 0, i), SubArray(MainClass.arrayPriceHigh, 0, i), SubArray(MainClass.arrayPriceVolume, 0, i));
-                Operation resultCCI = cci.GetOperation(SubArray(MainClass.arrayPriceOpen, 0, i), SubArray(MainClass.arrayPriceClose, 0, i), SubArray(MainClass.arrayPriceLow, 0, i), SubArray(MainClass.arrayPriceHigh, 0, i), SubArray(MainClass.arrayPriceVolume, 0, i));
-
-                MainClass.log(MainClass.arrayDate[i].ToString() + " - " + MainClass.arrayPriceClose[i].ToString() + " - " + result.ToString());
-                MainClass.log("CCI - " + cci.result);
-                if (result == Operation.buy)
-                {
-                    //MainClass.log("Buy");
-                    //MainClass.log("Open " + MainClass.arrayPriceOpen[i].ToString());
-                    //MainClass.log("Close " + MainClass.arrayPriceClose[i].ToString());
-                    //MainClass.log("Low " + MainClass.arrayPriceLow[i].ToString());
-                    //MainClass.log("High " + MainClass.arrayPriceHigh[i].ToString());
-                    //MainClass.log("Volume " + MainClass.arrayPriceVolume[i].ToString());
-                }
-                else if (result == Operation.sell)
-                {
-
-                    //MainClass.log("Sell");
-                    //MainClass.log("Open " + MainClass.arrayPriceOpen[i].ToString());
-                    //MainClass.log("Close " + MainClass.arrayPriceClose[i].ToString());
-                    //MainClass.log("Low " + MainClass.arrayPriceLow[i].ToString());
-                    //MainClass.log("High " + MainClass.arrayPriceHigh[i].ToString());
-                    //MainClass.log("Volume " + MainClass.arrayPriceVolume[i].ToString());
-
-                }
-                else if (result == Operation.nothing)
-                {
-
-                }
-
-
-            }
 
 
         }

@@ -10,16 +10,37 @@ using System.Threading.Tasks;
         public double high;
         public double low;
         public double limit;
+        public string timeGraph = MainClass.timeGraph;
+
         public IndicatorX()
         {
             this.indicator = this;
         }
+
+        public void Setup(Dictionary<string, string> cfg)
+        {
+            if (cfg.ContainsKey("high"))
+                setHigh(int.Parse(cfg["high"]));
+
+            if (cfg.ContainsKey("low"))
+                setLow(int.Parse(cfg["low"]));
+
+            if (cfg.ContainsKey("period"))
+                setPeriod(int.Parse(cfg["period"]));
+
+            if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+                timeGraph = cfg["timegraph"].Trim();
+        }
+
         public string getName()
         {
             return "MACD.RSI";
         }
-
-
+        
+        public string getTimegraph()
+        {
+            return timeGraph;
+        }
 
         public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
         {

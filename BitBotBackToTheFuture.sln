@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitBotBackToTheFuture", "BitBotBackToTheFuture.csproj", "{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyPrivate", "Plugins\Strategies\StrategyPrivate.csproj", "{BFC28AFF-BB35-4B76-9272-9C3CC2418F9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,11 +17,17 @@ Global
 		{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC28AFF-BB35-4B76-9272-9C3CC2418F9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC28AFF-BB35-4B76-9272-9C3CC2418F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC28AFF-BB35-4B76-9272-9C3CC2418F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC28AFF-BB35-4B76-9272-9C3CC2418F9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6AF64732-50F5-4A5A-9DB9-085D6FE8D721}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

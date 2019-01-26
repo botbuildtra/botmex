@@ -9,15 +9,42 @@ public class IndicatorSAR : IndicatorBase, IIndicator
     private double high;
     private double low;
     private double limit;
-
+    public double accel = 0.02;
+    public double max = 0.2;
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorSAR()
     {
         this.indicator = this;
     }
 
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("high"))
+            setHigh(int.Parse(cfg["high"]));
+
+        if (cfg.ContainsKey("low"))
+            setLow(int.Parse(cfg["low"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("max"))
+            this.max = double.Parse(cfg["max"]);
+        if (cfg.ContainsKey("accel"))
+            this.accel = double.Parse(cfg["accel"]);
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public void setPeriod(int period)
     {
         this.period = period;
+    }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
     }
 
     public TypeIndicator getTypeIndicator()
@@ -52,7 +79,7 @@ public class IndicatorSAR : IndicatorBase, IIndicator
         {
             int outBegidx, outNbElement;            
             arrayresultTA = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Sar(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, 0.02, 0.2, out outBegidx, out outNbElement, arrayresultTA);            
+            TicTacTec.TA.Library.Core.Sar(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, accel, max, out outBegidx, out outNbElement, arrayresultTA);            
             double value = arrayresultTA[outNbElement - 1];
             double lastValue = arrayresultTA[outNbElement - 2];
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];

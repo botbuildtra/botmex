@@ -8,16 +8,45 @@ public class IndicatorPPO : IndicatorBase, IIndicator
 {
     public double high = 1;
     public double low = -1;
-
+    public int iLong = 21;
+    public int iShort = 10;
+    public string timeGraph = MainClass.timeGraph;
     public double limit;
 
     public IndicatorPPO()
     {
         this.indicator = this;
     }
+
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("high"))
+            setHigh(int.Parse(cfg["high"]));
+
+        if (cfg.ContainsKey("low"))
+            setLow(int.Parse(cfg["low"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("long"))
+            this.iLong = int.Parse(cfg["long"]);
+
+        if (cfg.ContainsKey("short"))
+            this.iShort = int.Parse(cfg["short"]);
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public string getName()
     {
         return "PPO";
+    }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
     }
 
     public void setPeriod(int period)
@@ -50,7 +79,7 @@ public class IndicatorPPO : IndicatorBase, IIndicator
         {
             int outBegidx, outNbElement;
             double[] result = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Ppo(0, arrayPriceClose.Length - 1, arrayPriceClose, Convert.ToInt32(this.low), Convert.ToInt32(this.high), TicTacTec.TA.Library.Core.MAType.Sma, out outBegidx, out outNbElement, result);
+            TicTacTec.TA.Library.Core.Ppo(0, arrayPriceClose.Length - 1, arrayPriceClose, this.iShort, this.iLong, TicTacTec.TA.Library.Core.MAType.Sma, out outBegidx, out outNbElement, result);
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double value = result[outNbElement - 1];
             this.result = value;

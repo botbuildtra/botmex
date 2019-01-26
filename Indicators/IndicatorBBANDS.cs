@@ -6,16 +6,40 @@ using System.Threading.Tasks;
 
 public class IndicatorBBANDS : IndicatorBase, IIndicator
 {
-
+    public int high = 2;
+    public int low = 2;
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorBBANDS()
     {
         this.indicator = this;
         this.period = 20;
     }
+
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("high"))
+            setHigh(int.Parse(cfg["high"]));
+
+        if (cfg.ContainsKey("low"))
+            setLow(int.Parse(cfg["low"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public string getName()
     {
         return "BBANDS";
     }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
+    }
+
     public void setPeriod(int period)
     {
         this.period = period;
@@ -39,7 +63,7 @@ public class IndicatorBBANDS : IndicatorBase, IIndicator
             double[] lineDown = new double[arrayPriceClose.Length];
             double[] lineMid = new double[arrayPriceClose.Length];
             double[] lineUp = new double[arrayPriceClose.Length];
-            TicTacTec.TA.Library.Core.Bbands(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, 2, 2, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, lineUp, lineMid, lineDown);
+            TicTacTec.TA.Library.Core.Bbands(0, arrayPriceClose.Length - 1, arrayPriceClose, this.period, this.high, this.low, TicTacTec.TA.Library.Core.MAType.Ema, out outBegidx, out outNbElement, lineUp, lineMid, lineDown);
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double _lineDown = lineDown[outNbElement - 1];
             double _lineMid = lineMid[outNbElement - 1];

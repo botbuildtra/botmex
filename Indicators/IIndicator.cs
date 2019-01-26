@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public enum Operation
 {
     buy,
     sell,
     nothing,
-    allow
+    allow,
+    invertbuy,
+    invertsell
 };
 
 public enum TypeIndicator
@@ -25,12 +28,14 @@ public enum Tendency
 public interface IIndicator
 {
     String getName();
+    String getTimegraph();
     TypeIndicator getTypeIndicator();
     Tendency getTendency();
-    void setPeriod(int period);
+    void Setup(Dictionary<string,string> cfg);
+    /*void setPeriod(int period);
     void setHigh(double high);
     void setLow(double low);
-    void setLimit(double limit);
+    void setLimit(double limit);*/
     double getResult();
     double getResult2();
     Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume);

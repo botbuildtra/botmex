@@ -5,6 +5,7 @@
   "websocketDomain": "wss://www.bitmex.com/realtime",
   "websocketKey": "",
   "websocketSecret": "",
+  "apidebug":"false",
   "usedb": "disable",
   "dbcon": "",
   "dbquery": "",
@@ -15,11 +16,11 @@
   "marketTaker": "disable",
   "limiteOrder": 1,
   "stoploss": 4,
-  "stoplosstype": "bot",
+  "stoplosstype": "strategy",
   "stoplossInterval": 4,
   "stepvalue": 0.5,
   "stopgain": 5,
-  "operation": "scalper",
+  "operation": "scalperv2",
   "obDiff": 7.5,
   "tendencyBook": "disable",
   "long": "enable",
@@ -27,7 +28,7 @@
   "roe": "automatic",
   "interval": 14500,
   "intervalOrder": 50000,
-  "timeGraph": "1m",
+  "timeGraph": "5m",
   "intervalCancelOrder": 200,
   "webserver": "enable",
   "webserverConfig": "http://localhost:5555/anubis/",
@@ -35,15 +36,37 @@
   "carolatr": "enable",
   "atrvalue": 6,
   "strategyOptions": [
+        {
+            "name": "something",
+            "value": "derp"
+        }
   ],
   "indicatorsEntry": [
-    {
-      "name": "CAROL",
-      "period": 14,
-      "high": 0,
-      "low": 0,
-      "limit": 0
-    }
+    {  
+         "name":"CCI",
+         "period":20,
+         "high":160,
+         "low":-160
+      },
+      {  
+         "name":"RSI",
+         "period":9,
+         "high":70,
+         "low":30
+      },
+      {  
+         "name":"MFI",
+         "period":20,
+         "high":70,
+         "low":30
+      },
+      {  
+         "name":"MATENDENCY",
+         "long":185,
+         "short":130,
+         "timegraph":"1m"
+      }
+
   ],
   "indicatorsEntryCross": [
 
@@ -52,9 +75,10 @@
     {
       "name": "ATR",
       "period": 14,
-      "high": 0,
-      "low": 0,
       "limit": 4
     }
-  ]
+  ],
+  "indicatorsInvert": [
+
+  ],
 }

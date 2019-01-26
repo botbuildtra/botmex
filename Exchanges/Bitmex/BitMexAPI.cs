@@ -28,13 +28,15 @@ namespace BitMEX
         private string apiKey;
         private string apiSecret;
         private int rateLimit;
+        private bool apiLog;
 
-        public BitMEXApi(string bitmexKey = "", string bitmexSecret = "", string bitmexDomain = "", int rateLimit = 5000)
+        public BitMEXApi(string bitmexKey = "", string bitmexSecret = "", string bitmexDomain = "", int rateLimit = 5000, bool apiLog = false)
         {
             this.apiKey = bitmexKey;
             this.apiSecret = bitmexSecret;
             this.rateLimit = rateLimit;
             this.domain = bitmexDomain;
+            this.apiLog = apiLog;
         }
 
         #region API Connector - Don't touch
@@ -72,13 +74,14 @@ namespace BitMEX
         }
 
         static object objLock = new object();
-        private long GetNonce()
+        private long GetExpires()
         {
             //lock (objLock)
             {
                 System.Threading.Thread.Sleep(800);
-                DateTime yearBegin = new DateTime(2018, 1, 1);
-                return DateTime.UtcNow.Ticks - yearBegin.Ticks;
+                //DateTime yearBegin = new DateTime(2018, 1, 1);
+                //return DateTime.UtcNow.Ticks - yearBegin.Ticks;
+                return DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
                 //long ret = long.Parse(DateTime.UtcNow.ToString("yyyyMMddHHmmssffff"));
                 //return ret;
             }
@@ -107,12 +110,12 @@ namespace BitMEX
 
                 if (auth)
                 {
-                    string nonce = GetNonce().ToString();
-                    string message = method + url + nonce + postData;
+                    string expires = GetExpires().ToString();
+                    string message = method + url + expires + postData;
                     byte[] signatureBytes = hmacsha256(Encoding.UTF8.GetBytes(apiSecret), Encoding.UTF8.GetBytes(message));
                     string signatureString = ByteArrayToString(signatureBytes);
 
-                    webRequest.Headers.Add("api-nonce", nonce);
+                    webRequest.Headers.Add("api-expires", expires);
                     webRequest.Headers.Add("api-key", apiKey);
                     webRequest.Headers.Add("api-signature", signatureString);
                 }
@@ -133,7 +136,14 @@ namespace BitMEX
                     using (Stream str = webResponse.GetResponseStream())
                     using (StreamReader sr = new StreamReader(str))
                     {
-                        return sr.ReadToEnd();
+                        string reply = sr.ReadToEnd();
+                        if(this.apiLog)
+                        {
+                            MainClass.log("URL: " + url, ConsoleColor.White, "api");
+                            MainClass.log("POSTDATA :" +postData, ConsoleColor.White, "api");
+                            MainClass.log("RESPONSE: " + reply, ConsoleColor.White, "api");
+                        }
+                        return reply;
                     }
                 }
                 catch (WebException wex)
@@ -147,7 +157,14 @@ namespace BitMEX
                         {
                             using (StreamReader sr = new StreamReader(str))
                             {
-                                return sr.ReadToEnd();
+                                string reply = sr.ReadToEnd();
+                                if (this.apiLog)
+                                {
+                                    MainClass.log("URL: " + url, ConsoleColor.White, "api");
+                                    MainClass.log("POSTDATA :" + postData, ConsoleColor.White, "api");
+                                    MainClass.log("RESPONSE: " + reply, ConsoleColor.White, "api");
+                                }
+                                return reply;
                             }
                         }
                     }
@@ -209,7 +226,7 @@ namespace BitMEX
             return JsonConvert.DeserializeObject<List<OrderBook>>(res);
         }
 
-        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false, bool marketTaker = false, string text = "BotMex")
+        public string PostOrderPostOnly(string Symbol, string Side, double Price, int Quantity, bool force = false, bool marketTaker = false, string text = "BotMex", bool close = false)
         {
             if(marketTaker)
             {
@@ -232,6 +249,8 @@ namespace BitMEX
             param["ordType"] = "Limit";
             if(!force)
                 param["execInst"] = "ParticipateDoNotInitiate";
+            if (close)
+                param["execInst"] = "Close";
             //param["displayQty"] = 1.ToString(); // Shows the order as hidden, keeps us from moving price away from our own orders
             param["price"] = Price.ToString().Replace(",", ".");
             string ret = Query("POST", "/order", param, true);
@@ -337,6 +356,14 @@ namespace BitMEX
             return Query("DELETE", "/order/all", param, true, true);
         }
 
+        public string CancelOrderById(string symbol, string orderID)
+        {
+            var param = new Dictionary<string, string>();
+            param["symbol"] = symbol;
+            param["orderID"] = orderID;
+            return Query("DELETE", "/order", param, true, true);
+        }
+
         public List<Instrument> GetActiveInstruments()
         {
             string res = Query("GET", "/instrument/active");
@@ -420,10 +447,24 @@ namespace BitMEX
             return Query("PUT", "/order", param, true, true);
         }
 
-        public string EditOrderPrice(string OrderId, double Price)
+        public string EditOrder(string OrderId, double Price, int Qty = 0)
         {
             var param = new Dictionary<string, string>();
             param["orderID"] = OrderId;
+            if(Qty != 0)
+            {
+                param["orderQty"] = Qty.ToString();
+            }
+
+            if (MainClass.pair.Contains("XBT"))
+            {
+                Price = this.RoundToNearest(Price, 2);
+            }
+            else if (MainClass.pair.Contains("ETHUSD"))
+            {
+                Price = this.RoundToNearest(Price, 20);
+            }
+            param["price"] = Price.ToString().Replace(",", ".");
             param["price"] = Price.ToString();
             return Query("PUT", "/order", param, true, true);
         }

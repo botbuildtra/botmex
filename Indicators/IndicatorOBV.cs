@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class IndicatorATR : IndicatorBase, IIndicator
+public class IndicatorOBV : IndicatorBase, IIndicator
 {
-    public double atr = 5;
-    public bool atrenable = false;
+    public double limit = 10;
+    public double previous = 0;
+    public double lastPerc;
     public string timeGraph = MainClass.timeGraph;
-
-    public IndicatorATR()
+    public IndicatorOBV()
     {
         this.indicator = this;
         this.period = 14;
@@ -27,7 +27,7 @@ public class IndicatorATR : IndicatorBase, IIndicator
 
     public string getName()
     {
-        return "ATR";
+        return "OBV";
     }
 
     public string getTimegraph()
@@ -37,21 +37,27 @@ public class IndicatorATR : IndicatorBase, IIndicator
 
     public Operation GetOperation(double[] arrayPriceOpen, double[] arrayPriceClose, double[] arrayPriceLow, double[] arrayPriceHigh, double[] arrayVolume)
     {
-        if (!atrenable)
+
+        int obv1 = 0;
+        int obv2 = 0;
+        double[] obv3 = new double[arrayPriceClose.Length];
+        TicTacTec.TA.Library.Core.Obv(0, arrayPriceClose.Length - 1, arrayPriceClose, arrayVolume, out obv1, out obv2, obv3);
+        double obvVal = obv3[obv2 - 1];
+        this.result = obvVal;
+        this.result2 = obvVal;
+        double percDiff = ((obvVal * 100) / previous) - 100;
+
+        if ((int)percDiff == 0 || double.IsInfinity(percDiff) )
+        {
+            previous = obvVal;
+        }
+
+        MainClass.log("OBV: " + this.result);
+        MainClass.log("OBV Perc Diff: " + Math.Abs(percDiff));
+        if (Math.Abs(percDiff) < this.limit || double.IsInfinity(percDiff))
             return Operation.allow;
 
-        int atr1 = 0;
-        int atr2 = 0;
-        double[] atr3 = new double[arrayPriceClose.Length];
-        TicTacTec.TA.Library.Core.Atr(0, arrayPriceClose.Length - 1, arrayPriceHigh, arrayPriceLow, arrayPriceClose, this.period, out atr1, out atr2, atr3);
-        double atrVal = atr3[atr2 - 1];
-        this.result = atrVal;
-        this.result2 = atrVal;
-
-        MainClass.log("ATR: " + this.result);
-        if (atrVal < this.atr)
-            return Operation.allow;
-
+        MainClass.log("REJECT");
         return Operation.nothing;
 
     }
@@ -81,22 +87,16 @@ public class IndicatorATR : IndicatorBase, IIndicator
         this.period = period;
     }
 
-    public void setAtr(double atr)
-    {
-        this.atr = atr;
-    }
-
-    public void enableAtr(bool val)
-    {
-        this.atrenable = val;
-    }
-
     public void setLimit(double limit)
     {
-        if(Math.Abs(limit) < 0 || Math.Abs(limit) > 0)
-        {
-            this.setAtr(limit);
-            this.enableAtr(true);
-        }
+        this.limit = limit;
+    }
+
+    public void setHigh(double high)
+    {
+    }
+
+    public void setLow(double low)
+    {
     }
 }
