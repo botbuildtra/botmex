@@ -78,7 +78,6 @@ namespace StopLoss
                         SLValue = MainClass.bitMEXApi.RoundToNearest(SLValue, 20);
                     }
 
-                    MainClass.log(MainClass.positionContracts.ToString());
                     if( lst[0].OrderQty != Math.Abs(MainClass.positionContracts) || lst[0].StopPx != SLValue )
                     {
                         string json = MainClass.bitMEXApi.EditSLOrderPx(lst[0].OrderId,SLValue, Math.Abs(MainClass.positionContracts));

@@ -12,7 +12,7 @@ namespace BitBotBackToTheFuture.Strategies
             {
                 foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                 {
-                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                     MainClass.log("Threshold Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());

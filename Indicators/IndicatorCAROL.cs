@@ -11,14 +11,32 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
     public double high, low, limit;
     private double atr = 6;
     private bool atrenable = false;
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorCAROL()
     {
         this.indicator = this;
     }
 
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("atr"))
+            setAtr(int.Parse(cfg["atr"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public void setPeriod(int period)
     {
         this.period = period;
+    }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
     }
 
     public TypeIndicator getTypeIndicator()
@@ -91,7 +109,7 @@ public class IndicatorCAROL : IndicatorBase, IIndicator
             MainClass.log("CCI Tendency: " + cci.getTendency());  
             MainClass.log("RSI: " + rsi.result);
             MainClass.log("RSI Tendency: " + rsi.getTendency());
-
+            MainClass.log("MACD: " + macd.result);
             if( MainClass.carolatr )
             {
                 MainClass.log("ATR: " + atrVal);

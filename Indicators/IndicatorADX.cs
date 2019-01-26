@@ -7,11 +7,23 @@ using System.Threading.Tasks;
 public class IndicatorADX : IndicatorBase, IIndicator
 {
     public double low = 25;
-    public double high = 25;
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorADX()
     {
         this.indicator = this;
         this.period = 14;
+    }
+
+    public void Setup(Dictionary<string,string> cfg)
+    {
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("low"))
+            setLow(int.Parse(cfg["low"]));
+
+        if (cfg.ContainsKey("timegraph") && ( cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h") )
+            timeGraph = cfg["timegraph"].Trim();
     }
 
     public string getName()
@@ -19,6 +31,10 @@ public class IndicatorADX : IndicatorBase, IIndicator
         return "ADX";
     }
 
+    public string getTimegraph()
+    {
+        return timeGraph;
+    }
 
     public void setPeriod(int period)
     {
@@ -35,11 +51,8 @@ public class IndicatorADX : IndicatorBase, IIndicator
             double priceClose = arrayPriceClose[arrayPriceClose.Length - 1];
             double value = result[outNbElement - 1];
             this.result = value;
-            if (value > this.high)
-                return Operation.sell;
-            else if (value < this.low)
+            if (value > this.low)
                 return Operation.buy;
-
             return Operation.nothing;
         }
         catch
@@ -70,7 +83,7 @@ public class IndicatorADX : IndicatorBase, IIndicator
 
     public void setHigh(double high)
     {
-        this.high = high;
+        throw new NotImplementedException();
     }
 
     public void setLow(double low)

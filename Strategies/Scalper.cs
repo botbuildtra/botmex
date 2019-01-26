@@ -19,7 +19,7 @@ namespace BitBotBackToTheFuture.Strategies
 
             foreach (var item in MainClass.lstIndicatorsEntry)
             {
-                Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
 
                 MainClass.log("Indicator: " + item.getName());
                 MainClass.log("Result1: " + item.getResult());
@@ -44,7 +44,7 @@ namespace BitBotBackToTheFuture.Strategies
             {
                 foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                 {
-                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                     MainClass.log("Threshold Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
@@ -62,7 +62,7 @@ namespace BitBotBackToTheFuture.Strategies
             {
                 foreach( var item in MainClass.lstIndicatorsEntryCross)
                 {
-                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                     MainClass.log("Cross Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
@@ -82,7 +82,7 @@ namespace BitBotBackToTheFuture.Strategies
                 {
 
 
-                    List<double> lst = MainClass.arrayPriceClose.OfType<double>().ToList();
+                    List<double> lst = MainClass.arrayPriceClose[MainClass.timeGraph].OfType<double>().ToList();
 
                     MainClass.log("Min: " + lst.Min());
                     MainClass.log("Avg: " + lst.Average());
@@ -94,7 +94,7 @@ namespace BitBotBackToTheFuture.Strategies
 
                     MainClass.log("Min5: " + min5);
                     MainClass.log("Max5: " + max5);
-                    if (MainClass.arrayPriceClose[499] > min5 && MainClass.arrayPriceClose[499] < max5)
+                    if (MainClass.arrayPriceClose[MainClass.timeGraph][499] > min5 && MainClass.arrayPriceClose[MainClass.timeGraph][499] < max5)
                     {
 
                         if (_operation == Operation.buy)
@@ -106,6 +106,7 @@ namespace BitBotBackToTheFuture.Strategies
                                 if (Math.Abs(MainClass.getPosition()) > 0)
                                 {
                                     MainClass.fixOrdersPosition();
+                                    MainClass.runSL(null);
                                     break;
                                 }
                             }
@@ -121,6 +122,7 @@ namespace BitBotBackToTheFuture.Strategies
                                 if (Math.Abs(MainClass.getPosition()) > 0)
                                 {
                                     MainClass.fixOrdersPosition();
+                                    MainClass.runSL(null);
                                     break;
                                 }
                             }

@@ -17,11 +17,11 @@ namespace BitBotBackToTheFuture.Strategies
                 //VERIFY INDICATORS ENTRY
                 foreach (var item in MainClass.lstIndicatorsEntry)
                 {
-                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                     MainClass.log("Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
-                    MainClass.log("Date: " + MainClass.arrayDate[MainClass.arrayPriceOpen.Length - 1]);
+                    MainClass.log("Date: " + MainClass.arrayDate[MainClass.arrayPriceOpen[item.getTimegraph()].Length - 1]);
                     MainClass.log("Operation: " + op.ToString());
                     MainClass.log("");
                     if (op != Operation.buy)
@@ -37,7 +37,7 @@ namespace BitBotBackToTheFuture.Strategies
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     {
-                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                         MainClass.log("Threshold Indicator: " + item.getName());
                         MainClass.log("Result1: " + item.getResult());
                         MainClass.log("Result2: " + item.getResult2());
@@ -55,7 +55,7 @@ namespace BitBotBackToTheFuture.Strategies
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryCross)
                     {
-                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                         MainClass.log("Indicator Cross: " + item.getName());
                         MainClass.log("Result1: " + item.getResult());
                         MainClass.log("Result2: " + item.getResult2());
@@ -146,7 +146,7 @@ namespace BitBotBackToTheFuture.Strategies
                 //VERIFY INDICATORS ENTRY
                 foreach (var item in MainClass.lstIndicatorsEntry)
                 {
-                    Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                    Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                     MainClass.log("Indicator: " + item.getName());
                     MainClass.log("Result1: " + item.getResult());
                     MainClass.log("Result2: " + item.getResult2());
@@ -163,7 +163,7 @@ namespace BitBotBackToTheFuture.Strategies
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryThreshold)
                     {
-                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                         MainClass.log("Threshold Indicator: " + item.getName());
                         MainClass.log("Result1: " + item.getResult());
                         MainClass.log("Result2: " + item.getResult2());
@@ -180,7 +180,7 @@ namespace BitBotBackToTheFuture.Strategies
                 {
                     foreach (var item in MainClass.lstIndicatorsEntryCross)
                     {
-                        Operation op = item.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+                        Operation op = item.GetOperation(MainClass.arrayPriceOpen[item.getTimegraph()], MainClass.arrayPriceClose[item.getTimegraph()], MainClass.arrayPriceLow[item.getTimegraph()], MainClass.arrayPriceHigh[item.getTimegraph()], MainClass.arrayPriceVolume[item.getTimegraph()]);
                         MainClass.log("Indicator Cross: " + item.getName());
                         MainClass.log("Result1: " + item.getResult());
                         MainClass.log("Result2: " + item.getResult2());

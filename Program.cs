@@ -1,18 +1,13 @@
-﻿using BitBotBackToTheFuture;
+using BitBotBackToTheFuture;
 using BitBotBackToTheFuture.Strategies;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-
 
 public enum TendencyMarket
 {
@@ -27,7 +22,7 @@ public class MainClass
 {
     public static string version = "0.0.3.0";
     public static string location = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + System.IO.Path.DirectorySeparatorChar;
-
+    public static bool debug = false;
     public static string bitmexKey = "";
     public static string bitmexSecret = "";
     public static string bitmexWebSocketDomain = "";
@@ -50,7 +45,7 @@ public class MainClass
     public static string stoplosstype = "orderbook"; // orderbook - bot
     public static double stopgain = 15;
     public static string bitmexDomain = "";
-    public static string operation = "normal"; // normal - scalper - surf - bingo
+    public static string operation = "normal"; // normal - scalper - surf - bingo - scalperv2
     public static bool roeAutomatic = true;
     public static bool usedb = false;
     public static bool tendencyBook = false;
@@ -60,7 +55,7 @@ public class MainClass
     public static double atrvalue = 6;
     public static bool marketTaker = false;
     public static double obDiff = 10;
-
+    public static bool apiDebug = false;
     public static double stepValue = 0.5;
     public static TendencyMarket tendencyMarket = TendencyMarket.NORMAL;
     public static BitMEX.BitMEXApi bitMEXApi = null;
@@ -69,22 +64,31 @@ public class MainClass
     public static List<IIndicator> lstIndicatorsEntry = new List<IIndicator>();
     public static List<IIndicator> lstIndicatorsEntryCross = new List<IIndicator>();
     public static List<IIndicator> lstIndicatorsEntryThreshold = new List<IIndicator>();
+    public static List<IIndicator> lstIndicatorsInvert = new List<IIndicator>();
     public static Dictionary<string, string> strategyOptions = new Dictionary<string, string>();
 
     public static double positionPrice = 0;
     public static int sizeArrayCandles = 500;
-    public static double[] arrayPriceClose = new double[sizeArrayCandles];
+
+    public static Dictionary<string, double[]> arrayPriceClose = new Dictionary<string, double[]>();
+    public static Dictionary<string, double[]> arrayPriceHigh = new Dictionary<string, double[]>();
+    public static Dictionary<string, double[]> arrayPriceLow = new Dictionary<string, double[]>();
+    public static Dictionary<string, double[]> arrayPriceVolume = new Dictionary<string, double[]>();
+    public static Dictionary<string, double[]> arrayPriceOpen = new Dictionary<string, double[]>();
+    /*public static double[] arrayPriceClose = new double[sizeArrayCandles];
     public static double[] arrayPriceHigh = new double[sizeArrayCandles];
     public static double[] arrayPriceLow = new double[sizeArrayCandles];
     public static double[] arrayPriceVolume = new double[sizeArrayCandles];
-    public static double[] arrayPriceOpen = new double[sizeArrayCandles];
+    public static double[] arrayPriceOpen = new double[sizeArrayCandles];*/
     public static DateTime[] arrayDate = new DateTime[sizeArrayCandles];
     public static bool useWebSockets;
     public static int stoplossInterval = 4;
-
-
+    public static int maxWebsocketsFail = 3;
+    public static Thread wss;
     public static Object data = new Object();
-
+    public static JContainer sharedConfig;
+    public static bool SLRunning = false;
+    public static bool RunTrigger = false;
     public static void Main(string[] args)
     {
         IStrategies strategy = null;
@@ -120,7 +124,7 @@ public class MainClass
 
             String jsonConfig = System.IO.File.ReadAllText(location + "key.json");
             JContainer config = (JContainer)JsonConvert.DeserializeObject(jsonConfig, (typeof(JContainer)));
-
+            sharedConfig = config;
             usedb = config["usedb"].ToString() == "enable";
 
             bitmexKey = config["key"].ToString();
@@ -151,16 +155,12 @@ public class MainClass
             limiteOrder = int.Parse(config["limiteOrder"].ToString());
             carolatr = config["carolatr"].ToString() == "enable";
             atrvalue = double.Parse(config["atrvalue"].ToString());
-            bitMEXApi = new BitMEX.BitMEXApi(bitmexKey, bitmexSecret, bitmexDomain);
+            apiDebug = bool.Parse(config["apidebug"].ToString());
+            bitMEXApi = new BitMEX.BitMEXApi(bitmexKey, bitmexSecret, bitmexDomain,5000,apiDebug);
             marketTaker = config["marketTaker"].ToString() == "enable";
             obDiff = double.Parse(config["obDiff"].ToString());
             stoplosstype = config["stoplosstype"].ToString();
             stoplossInterval = int.Parse(config["stoplossInterval"].ToString());
-            //TESTS HERE
-
-            tests();
-
-            //FINAL
 
             if (config["webserver"].ToString() == "enable")
             {
@@ -207,6 +207,9 @@ public class MainClass
             lstIndicatorsAll.Add(new IndicatorCAROLBEBENDO());
             lstIndicatorsAll.Add(new IndicatorATR());
             lstIndicatorsAll.Add(new IndicatorX());
+            lstIndicatorsAll.Add(new IndicatorOBV());
+            lstIndicatorsAll.Add(new IndicatorATRD());
+            lstIndicatorsAll.Add(new IndicatorMATENDENCY());
 
             foreach (var item in config["indicatorsEntry"])
             {
@@ -214,10 +217,13 @@ public class MainClass
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
-                        item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
-                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
-                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
-                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
+                        Dictionary<string, string> cfg = new Dictionary<string, string>();
+                        foreach(JProperty cfgitem in item)
+                        {
+                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+                            
+                        }
+                        item2.Setup(cfg);
                         lstIndicatorsEntry.Add(item2);
                     }
                 }
@@ -229,10 +235,13 @@ public class MainClass
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
-                        item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
-                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
-                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
-                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
+                        Dictionary<string, string> cfg = new Dictionary<string, string>();
+                        foreach (JProperty cfgitem in item)
+                        {
+                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+
+                        }
+                        item2.Setup(cfg);
                         lstIndicatorsEntryCross.Add(item2);
                     }
                 }
@@ -244,151 +253,177 @@ public class MainClass
                 {
                     if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
                     {
-                        item2.setPeriod(int.Parse((item["period"].ToString().Trim().ToUpper())));
-                        item2.setHigh(double.Parse((item["high"].ToString().Trim().ToUpper())));
-                        item2.setLow(double.Parse((item["low"].ToString().Trim().ToUpper())));
-                        item2.setLimit(double.Parse((item["limit"].ToString().Trim().ToUpper())));
+                        Dictionary<string, string> cfg = new Dictionary<string, string>();
+                        foreach (JProperty cfgitem in item)
+                        {
+                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
 
+                        }
+                        item2.Setup(cfg);
                         lstIndicatorsEntryThreshold.Add(item2);
                     }
                 }
             }
 
-            foreach(var item in config["strategyOptions"])
+            foreach (var item in config["indicatorsInvert"])
             {
-                strategyOptions[item["name"].ToString().Trim().ToLower()] = item["value"].ToString().Trim().ToLower();
+                foreach (var item2 in lstIndicatorsAll)
+                {
+                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
+                    {
+                        Dictionary<string, string> cfg = new Dictionary<string, string>();
+                        foreach (JProperty cfgitem in item)
+                        {
+                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+
+                        }
+                        item2.Setup(cfg);
+                        lstIndicatorsInvert.Add(item2);
+                    }
+                }
             }
 
-
+            foreach (var item in config["strategyOptions"])
+            {
+                strategyOptions[item["name"].ToString().Trim().ToLower()] = item["value"].ToString().Trim();
+            }
 
             bool automaticTendency = statusLong == "automatic";
 
-            useWebSockets = false;
-            if( bitmexWebSocketDomain != "" )
-            {
-                Thread wss = new Thread(WebSocket.BitmexWS.run);
-                wss.Start();
-                useWebSockets = true;
-                MainClass.log("Sleeping 4s to get initial data", ConsoleColor.Cyan);
-                System.Threading.Thread.Sleep(4000);
-            }
+            /* Get initial candles */
+            getCandles("1m", false);
+            getCandles("5m", false);
+            getCandles("1h", false);
+            Thread.Sleep(2000);
+
+            Timer wsHandle = new Timer(handleWebsockets, null, TimeSpan.Zero, TimeSpan.FromSeconds(15));
+
 
             if (operation == "manual")
             {
                 while (true)
-                    System.Threading.Thread.Sleep(60000);
+                {
+                    System.Threading.Thread.Sleep(2000);
+                }
             }
 
             //Threaded SL
             if(stoplosstype != "strategy")
             {
-                var slt = new Timer(runSL, null, TimeSpan.Zero, TimeSpan.FromSeconds(stoplossInterval));
+                Timer slt = new Timer(runSL, null, TimeSpan.Zero, TimeSpan.FromSeconds(stoplossInterval));
             }
-                
+
+            //TESTS HERE
+            if(operation == "debug")
+            {
+                tests();
+                System.Environment.Exit(1);
+            }
+
+            //FINAL
             //LOOP 
             while (true)
             {
-
                 try
                 {
-                    positionContracts = getPosition(); // FIX CARLOS MORATO                                            
-                    positionPrice = 0;
-
-                    if (positionContracts != 0)
-                        positionPrice = getPositionPrice();
-
-                    log("positionContracts " + positionContracts);
-                    log("positionPrice " + positionPrice);
-
-                    #region "Fix position not orders
-                    if (operation == "normal" || operation == "scalper" || operation == "bingo")
-                        fixOrdersPosition();
-
-                    #endregion
-
-                    if (automaticTendency)
-                        verifyTendency();
-
-                    //GET CANDLES
-                    if (getCandles(timeGraph))
+                    if ( ( useWebSockets && RunTrigger ) || !useWebSockets )
                     {
-                        if (operation == "normal" || operation == "surf")
+                        positionContracts = getPosition(); // FIX CARLOS MORATO                                            
+                        positionPrice = 0;
+
+                        if (positionContracts != 0)
+                            positionPrice = getPositionPrice();
+
+                        log("positionContracts " + positionContracts);
+                        log("positionPrice " + positionPrice);
+
+                        #region "Fix position not orders
+                        if (operation == "normal" || operation == "scalper" || operation == "scalperv2" || operation == "bingo")
+                            fixOrdersPosition();
+
+                        #endregion
+
+                        if (automaticTendency)
+                            verifyTendency();
+
+                        //GET CANDLES
+                        if (useWebSockets || getCandles(timeGraph, false, true))
                         {
-                            Normal.run();
-                        }
-                        else if (operation == "scalper")
-                        {
-                            Scalper.run();
-                        }
-                        else if (operation == "bingo")
-                        {
-                            Bingo.run();
-                        }
-                        else
-                        {
-                            if (strategy == null)
+                            if (operation == "normal" || operation == "surf")
                             {
-                                MainClass.log("Loading Strategies");
-                                string[] strategies = Directory.GetFiles(location, "Strategy*.dll");
-                                Type strat = Type.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
-                                log(operation.First().ToString().ToUpper() + operation.Substring(1));
-                                foreach (string dllStrategy in strategies)
-                                {
-                                    log(dllStrategy);
-                                    try
-                                    {
-                                        log("Trying to load Strategy: " + dllStrategy);
-                                        var assembly = Assembly.LoadFile(@dllStrategy);
-                                        Type[] types = assembly.GetTypes();
-                                        foreach( Type type in types )
-                                        {
-                                            if (type.ToString().Equals("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
-                                            {
-                                                strat = assembly.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
-                                            }
-                                        }
-
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        log("Cold not load strategy: " + dllStrategy + ex.ToString());
-                                    }
-                                }
-
-
-                                if (strat == null)
-                                {
-                                    log("Estrategia não encontrada", ConsoleColor.Red);
-                                    System.Environment.Exit(1);
-                                }
-                                strategy = (IStrategies)Activator.CreateInstance(strat);
+                                Normal.run();
                             }
-                            strategy.run();
-                        }
-
-
-
-
-                        /* else if (operation == "bebendo")
+                            else if (operation == "scalper")
+                            {
+                                Scalper.run();
+                            }
+                            else if (operation == "scalperv2")
+                            {
+                                ScalperV2.run();
+                            }
+                            else if (operation == "bingo")
+                            {
+                                Bingo.run();
+                            }
+                            else
+                            {
+                                if (strategy == null)
+                                {
+                                    MainClass.log("Loading Strategies");
+                                    string[] strategies = Directory.GetFiles(location, "Strategy*.dll");
+                                    Type strat = Type.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+                                    log(operation.First().ToString().ToUpper() + operation.Substring(1));
+                                    foreach (string dllStrategy in strategies)
                                     {
-                                        Bebendo.setup();
-                                        Bebendo.run();
+                                        log(dllStrategy);
+                                        try
+                                        {
+                                            log("Trying to load Strategy: " + dllStrategy);
+                                            var assembly = Assembly.LoadFile(@dllStrategy);
+                                            Type[] types = assembly.GetTypes();
+                                            foreach (Type type in types)
+                                            {
+                                                if (type.ToString().Equals("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
+                                                {
+                                                    strat = assembly.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+                                                }
+                                            }
+
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log("Cold not load strategy: " + dllStrategy + ex.ToString());
+                                        }
                                     }
-                                    else if (operation == "crosstrail")
-                                    {
-                                        CrossTrail.setup();
-                                        CrossTrail.run();
-                                    }*/
 
+
+                                    if (strat == null)
+                                    {
+                                        log("Estrategia não encontrada", ConsoleColor.Red);
+                                        System.Environment.Exit(1);
+                                    }
+                                    strategy = (IStrategies)Activator.CreateInstance(strat);
+                                }
+                                strategy.run();
+                            }
+                        }
+                        RunTrigger = false;
                     }
 
-                    log("wait " + interval + "ms", ConsoleColor.Blue);
-                    Thread.Sleep(interval);
-
+                    if(useWebSockets)
+                    {
+                        Thread.Sleep(20);
+                    }
+                    else
+                    {
+                        log("wait " + interval + "ms", ConsoleColor.Blue);
+                        Thread.Sleep(interval);
+                    }
 
                 }
                 catch (Exception ex)
                 {
+                    RunTrigger = false;
                     log("while true::" + ex.Message + ex.StackTrace);
                 }
             }
@@ -659,43 +694,50 @@ public class MainClass
         return 0;
     }
 
-    public static bool getCandles(string timeGraph = "5m", bool partial = true)
+    public static bool getCandles(string timeGraph = "5m", bool partial = false, bool initial = true)
     {
         try
         {
-            arrayPriceClose = new double[sizeArrayCandles];
-            arrayPriceHigh = new double[sizeArrayCandles];
-            arrayPriceLow = new double[sizeArrayCandles];
-            arrayPriceVolume = new double[sizeArrayCandles];
-            arrayPriceOpen = new double[sizeArrayCandles];
+            if (!initial && useWebSockets)
+            {
+                Console.Title = DateTime.Now.ToString() + " - " + pair + " - $ " + arrayPriceClose[timeGraph][499].ToString() + " v" + version + " - " + bitmexDomain + " | " + tendencyMarket + "| operation " + operation;
+                return true;
+            }
+
+            arrayPriceClose[timeGraph] = new double[sizeArrayCandles];
+            //arrayPriceClose = new double[sizeArrayCandles];
+            arrayPriceHigh[timeGraph] = new double[sizeArrayCandles];
+            arrayPriceLow[timeGraph] = new double[sizeArrayCandles];
+            arrayPriceVolume[timeGraph] = new double[sizeArrayCandles];
+            arrayPriceOpen[timeGraph] = new double[sizeArrayCandles];
             arrayDate = new DateTime[sizeArrayCandles];
             List<BitMEX.Candle> lstCandle = bitMEXApi.GetCandleHistory(pair, sizeArrayCandles, timeGraph, partial);
             int i = 0;
             foreach (var candle in lstCandle)
             {
-                arrayPriceClose[i] = (double)candle.close;
-                arrayPriceHigh[i] = (double)candle.high;
-                arrayPriceLow[i] = (double)candle.low;
-                arrayPriceVolume[i] = (double)candle.volume;
-                arrayPriceOpen[i] = (double)candle.open;
+                arrayPriceClose[timeGraph][i] = (double)candle.close;
+                arrayPriceHigh[timeGraph][i] = (double)candle.high;
+                arrayPriceLow[timeGraph][i] = (double)candle.low;
+                arrayPriceVolume[timeGraph][i] = (double)candle.volume;
+                arrayPriceOpen[timeGraph][i] = (double)candle.open;
                 arrayDate[i] = (DateTime)candle.TimeStamp;
                 i++;
             }
 
-            Array.Reverse(arrayPriceClose);
-            Array.Reverse(arrayPriceHigh);
-            Array.Reverse(arrayPriceLow);
-            Array.Reverse(arrayPriceVolume);
-            Array.Reverse(arrayPriceOpen);
+            Array.Reverse(arrayPriceClose[timeGraph]);
+            Array.Reverse(arrayPriceHigh[timeGraph]);
+            Array.Reverse(arrayPriceLow[timeGraph]);
+            Array.Reverse(arrayPriceVolume[timeGraph]);
+            Array.Reverse(arrayPriceOpen[timeGraph]);
             Array.Reverse(arrayDate);
 
 
-            Console.Title = DateTime.Now.ToString() + " - " + pair + " - $ " + arrayPriceClose[499].ToString() + " v" + version + " - " + bitmexDomain + " | " + tendencyMarket + "| operation " + operation;
+            Console.Title = DateTime.Now.ToString() + " - " + pair + " - $ " + arrayPriceClose[timeGraph][499].ToString() + " v" + version + " - " + bitmexDomain + " | " + tendencyMarket + "| operation " + operation;
             return true;
         }
         catch (Exception ex)
         {
-            log("GETCANDLES::" + ex.Message + ex.StackTrace);
+            log("GETCANDLES::" + ex.Message + ex.StackTrace, ConsoleColor.White,"error");
             //log("wait " + intervalOrder + "ms");
             //Thread.Sleep(intervalOrder);
             return false;
@@ -748,17 +790,42 @@ public class MainClass
     {
         try
         {
+            string orderid;
             List<BitMEX.Order> OpenOrderQty = bitMEXApi.GetOpenOrders(pair);
             int _contactsQty = 0;
             foreach (var Order in OpenOrderQty)
-                if( Order.OrdType != "Stop" && Order.OrdType != "StopLimit" )
+            if( Order.OrdType != "Stop" && Order.OrdType != "StopLimit" )
+            {
+                orderid = Order.OrderId;
+                if (Order.Side == "Sell")
+                    _contactsQty += (int)Order.OrderQty * (-1);
+                else
+                    _contactsQty += (int)Order.OrderQty;
+            }
+            return _contactsQty;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("getOpenOrderQty:: " + ex.Message + ex.StackTrace);
+        }
+    }
+
+    public static string getOpenOrderId()
+    {
+        try
+        {
+            string orderid = "";
+            List<BitMEX.Order> OpenOrderQty = bitMEXApi.GetOpenOrders(pair);
+            foreach (var Order in OpenOrderQty)
+                if (Order.OrdType != "Stop" && Order.OrdType != "StopLimit")
                 {
-                    if (Order.Side == "Sell")
+                    return Order.OrderId;
+                    /*if (Order.Side == "Sell")
                         _contactsQty += (int)Order.OrderQty * (-1);
                     else
-                        _contactsQty += (int)Order.OrderQty;
+                        _contactsQty += (int)Order.OrderQty;*/
                 }
-                return _contactsQty;
+            return orderid;
         }
         catch (Exception ex)
         {
@@ -817,7 +884,7 @@ public class MainClass
         return null;
     }
 
-    public static void log(string value, ConsoleColor color = ConsoleColor.White)
+    public static void log(string value, ConsoleColor color = ConsoleColor.White, string type = "main")
     {
         try
         {
@@ -826,8 +893,19 @@ public class MainClass
             Console.ForegroundColor = color;
             Console.WriteLine(value);
             Console.ForegroundColor = ConsoleColor.White;
-
-            System.IO.StreamWriter w = new StreamWriter(location + DateTime.Now.ToString("yyyyMMdd") + "_log.txt", true);
+            System.IO.StreamWriter w;
+            if (type == "error")
+            {
+                w = new StreamWriter(location + DateTime.Now.ToString("yyyyMMdd") + "error_log.txt", true);
+            }
+            else if (type == "api")
+            {
+                w = new StreamWriter(location + DateTime.Now.ToString("yyyyMMdd") + "_api_log.txt", true);
+            }
+            else
+            {
+                w = new StreamWriter(location + DateTime.Now.ToString("yyyyMMdd") + "_log.txt", true);
+            }
             w.WriteLine(value);
             w.Close();
             w.Dispose();
@@ -871,23 +949,65 @@ public class MainClass
     }
 
 
+    public static void handleWebsockets(object state)
+    {
+        //useWebSockets = false;
+        if (bitmexWebSocketDomain != "")
+        {
+            if(wss == null)
+            {
+                wss = new Thread(WebSocket.BitmexWS.run);
+                wss.Start();
+                useWebSockets = true;
+                log("Sleeping 4s to get initial data", ConsoleColor.Cyan);
+                Thread.Sleep(4000);
+            }
+            else if (!wss.IsAlive)
+            {
+                wss = new Thread(WebSocket.BitmexWS.run);
+                wss.Start();
+                useWebSockets = true;
+                log("Retrying connection to websockets...", ConsoleColor.Red);
+                Thread.Sleep(4000);
+            }
+
+        }
+    }
 
     public static void runSL(object state)
     {
-        log("Checking for possible Stop Losses",ConsoleColor.Red);
-        if ( stoplosstype == "orderbook")
+        try
         {
-            StopLoss.OrderBook.run();
+            SLRunning = true;
+            log("Checking for possible Stop Losses", ConsoleColor.Red);
+            if (stoplosstype == "orderbook")
+            {
+                StopLoss.OrderBook.run();
+            }
+            else if (stoplosstype == "bot")
+            {
+                StopLoss.MarketClose.run();
+            }
+            else
+            {
+                log("Invalid Stop Loss Setting, EXITING", ConsoleColor.Red);
+                System.Environment.Exit(1);
+            }
+            SLRunning = false;
         }
-        else if( stoplosstype == "bot")
+        catch(Exception e)
         {
-            StopLoss.MarketClose.run();
-        }   
+            SLRunning = false;
+            log("Error in the STOP Loss Engine");
+            log(e.Message + " " + e.StackTrace + " " + e.ToString(), ConsoleColor.White, "error");
+        }
+
     }
 
     public static void fixOrdersPosition(bool force = true)
     {
-        if (operation != "surf" && roeAutomatic && (Math.Abs(getOpenOrderQty()) < Math.Abs(positionContracts)))
+        int oOrders = getOpenOrderQty();
+        if (operation != "surf" && roeAutomatic && (Math.Abs(oOrders) < Math.Abs(positionContracts)))
         {
             positionContracts = getPosition(); // FIX CARLOS MORATO                                            
             log("Get Position " + positionContracts);
@@ -907,9 +1027,23 @@ public class MainClass
 
 
                 double price = priceContacts + stepValue;
-                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force,marketTaker,"Normal/Scalp Sell Exit Order");
-                JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
-                log(json);
+                if(Math.Abs(oOrders) > 0 && Math.Abs(oOrders) < Math.Abs(positionContracts))
+                {
+                    string orderid = getOpenOrderId();
+                    if(orderid == "" )
+                    {
+                        return;
+                    }
+
+                    String json = bitMEXApi.EditOrder(orderid, price, Math.Abs(positionContracts));
+                    log(json);
+                }
+                else
+                {
+                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, "Normal/Scalp Sell Exit Order", true);
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    log(json);
+                }
             }
 
             if (positionContracts < 0)
@@ -921,9 +1055,24 @@ public class MainClass
                 double priceContactsProfit = Math.Abs(Math.Floor(priceContacts - (priceContacts * (profit + fee) / 100)));
 
                 double price = priceContacts - stepValue;
-                String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker,"Normal/Scalp Buy Exit Order");
-                JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
-                log(json);
+                if (Math.Abs(oOrders) > 0 && Math.Abs(oOrders) < Math.Abs(positionContracts))
+                {
+                    string orderid = getOpenOrderId();
+                    if (orderid == "")
+                    {
+                        return;
+                    }
+
+                    String json = bitMEXApi.EditOrder(orderid, price, Math.Abs(positionContracts));
+                    log(json);
+                }
+                else
+                {
+                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, "Normal/Scalp Buy Exit Order", true);
+                    JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
+                    log(json);
+                }
+
             }
 
         }
@@ -932,7 +1081,7 @@ public class MainClass
     public static void tests()
     {
 
-        //    BackTest.run();
+        BackTest.run();
 
 
 

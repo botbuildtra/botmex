@@ -9,18 +9,50 @@ public class IndicatorCAROLBEBENDO : IndicatorBase, IIndicator
 {
 
     public double limit;
-    public double high = 34;
-    public double low = 17;
+    public double ilong = 34;
+    public double ishort = 17;
+    public double atrperiod = 14;
+    public string maTimegraph = "1h";
     private double atr = 6;
     private bool atrenable = false;
+    public string timeGraph = MainClass.timeGraph;
     public IndicatorCAROLBEBENDO()
     {
         this.indicator = this;
     }
 
+    public void Setup(Dictionary<string, string> cfg)
+    {
+        if (cfg.ContainsKey("long"))
+            setLong(int.Parse(cfg["long"]));
+
+        if (cfg.ContainsKey("short"))
+            setShort(int.Parse(cfg["short"]));
+
+        if (cfg.ContainsKey("period"))
+            setPeriod(int.Parse(cfg["period"]));
+
+        if (cfg.ContainsKey("atr"))
+            setAtr(int.Parse(cfg["atr"]));
+
+        if (cfg.ContainsKey("atrperiod"))
+            setAtrPeriod(int.Parse(cfg["atrperiod"]));
+
+        if(cfg.ContainsKey("matimegraph") && (cfg["matimegraph"].Equals("1m") || cfg["matimegraph"].Equals("5m") || cfg["matimegraph"].Equals("1h")))
+            setMaTimegraph(cfg["matimegraph"]);
+
+        if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
+            timeGraph = cfg["timegraph"].Trim();
+    }
+
     public void setPeriod(int period)
     {
         this.period = period;
+    }
+
+    public string getTimegraph()
+    {
+        return timeGraph;
     }
 
     public TypeIndicator getTypeIndicator()
@@ -98,12 +130,16 @@ public class IndicatorCAROLBEBENDO : IndicatorBase, IIndicator
             IndicatorRSI rsi = new IndicatorRSI();
             Operation operationRSI = rsi.GetOperation(arrayPriceOpen, arrayPriceClose, arrayPriceLow, arrayPriceHigh, arrayVolume);
 
-            MainClass.log("Download candles 5m para processar MA");
-            MainClass.getCandles("5m");
+            if(this.maTimegraph != MainClass.timeGraph)
+            {
+                MainClass.log("Download candles "+maTimegraph+ " para processar MA");
+                MainClass.getCandles(maTimegraph);
+            }
+            
             IndicatorMA ma = new IndicatorMA();
-            ma.setHigh(this.high);
-            ma.setLow(this.low);
-            Operation operationMA = ma.GetOperation(MainClass.arrayPriceOpen, MainClass.arrayPriceClose, MainClass.arrayPriceLow, MainClass.arrayPriceHigh, MainClass.arrayPriceVolume);
+            ma.setLong(this.ilong);
+            ma.setShort(this.ishort);
+            Operation operationMA = ma.GetOperation(MainClass.arrayPriceOpen[maTimegraph], MainClass.arrayPriceClose[maTimegraph], MainClass.arrayPriceLow[maTimegraph], MainClass.arrayPriceHigh[maTimegraph], MainClass.arrayPriceVolume[maTimegraph]);
 
 
             //TicTacTec.TA.Library.Core.Atr();
@@ -164,19 +200,29 @@ public class IndicatorCAROLBEBENDO : IndicatorBase, IIndicator
         this.atr = atr;
     }
 
+    public void setAtrPeriod(double period)
+    {
+        this.atrperiod = period;
+    }
+
+    public void setMaTimegraph(string tg)
+    {
+        this.maTimegraph = tg;
+    }
+
     public void enableAtr(bool val)
     {
         this.atrenable = val;
     }
 
-    public void setHigh(double high)
+    public void setLong(double ilong)
     {
-        this.high = high;
+        this.ilong = ilong;
     }
 
-    public void setLow(double low)
+    public void setShort(double ishort)
     {
-        this.low = low;
+        this.ishort = ishort;
     }
 
     public void setLimit(double limit)
