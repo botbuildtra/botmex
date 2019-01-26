@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public static class Scalper
     {

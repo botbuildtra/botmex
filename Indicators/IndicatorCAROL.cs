@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BitBotBackToTheFuture;
+using Botmex;
 
 public class IndicatorCAROL : IndicatorBase, IIndicator
 {

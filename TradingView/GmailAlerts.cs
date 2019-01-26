@@ -8,7 +8,7 @@ using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 
-namespace BitBotBackToTheFuture.TradingView
+namespace Botmex.TradingView
 {
 
     public class GmailAlerts

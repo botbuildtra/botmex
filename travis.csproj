@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{46C3C22D-003D-4AD1-8DC3-B3B856C68F66}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>BitBotBackToTheFuture</RootNamespace>
-    <AssemblyName>BitBotBackToTheFuture</AssemblyName>
+    <RootNamespace>Botmex</RootNamespace>
+    <AssemblyName>Botmex</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>

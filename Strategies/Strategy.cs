@@ -1,5 +1,5 @@
 ﻿using System;
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public interface IStrategies
     {

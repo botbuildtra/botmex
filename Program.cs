@@ -1,5 +1,5 @@
-using BitBotBackToTheFuture;
-using BitBotBackToTheFuture.Strategies;
+using Botmex;
+using Botmex.Strategies;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -110,7 +110,7 @@ public class MainClass
             log(" ======= END HALL OF FAME BOTMEX  ======= ");
 
             log("http://botmex.ninja/");
-            log("GITHUB http://github.com/tperalta82/BitBotBackToTheFuture", ConsoleColor.Blue);
+            log("GITHUB http://github.com/tperalta82/botmex", ConsoleColor.Blue);
             log(" ******* DONATE ********* ");
             log("BTC: 3NoXn5PHyBAxxQAc2LCruWoEhthWsAdSR8");
             log("LTC: MKPZ2XZep3pTfggjBpiSgjRofDAEbBC8qp ");
@@ -367,7 +367,7 @@ public class MainClass
                                 {
                                     MainClass.log("Loading Strategies");
                                     string[] strategies = Directory.GetFiles(location, "Strategy*.dll");
-                                    Type strat = Type.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+                                    Type strat = Type.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
                                     log(operation.First().ToString().ToUpper() + operation.Substring(1));
                                     foreach (string dllStrategy in strategies)
                                     {
@@ -379,9 +379,9 @@ public class MainClass
                                             Type[] types = assembly.GetTypes();
                                             foreach (Type type in types)
                                             {
-                                                if (type.ToString().Equals("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
+                                                if (type.ToString().Equals("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
                                                 {
-                                                    strat = assembly.GetType("BitBotBackToTheFuture.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+                                                    strat = assembly.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
                                                 }
                                             }
 

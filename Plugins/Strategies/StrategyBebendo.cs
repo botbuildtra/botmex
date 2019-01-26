@@ -6,7 +6,7 @@ using BitMEX;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public class Bebendo : IStrategies
     {

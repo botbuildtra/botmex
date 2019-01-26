@@ -1,15 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using BitBotBackToTheFuture.Strategies;
+using Botmex.Strategies;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
-using static Google.Apis.Gmail.v1.GmailService;
+//using static Google.Apis.Gmail.v1.GmailService;
 
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public class Tradingview: IStrategies
     {

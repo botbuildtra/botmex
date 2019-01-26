@@ -5,7 +5,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public static class ScalperV2
     {

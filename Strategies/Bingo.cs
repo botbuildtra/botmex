@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace BitBotBackToTheFuture.Strategies
+namespace Botmex.Strategies
 {
     public static class Bingo
     {
