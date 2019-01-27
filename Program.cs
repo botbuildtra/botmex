@@ -99,7 +99,7 @@ public class MainClass
 
             Console.ForegroundColor = ConsoleColor.White;
 
-            log("Krampus - Liquidador do saldo - v" + version);
+            log("Tesourinho Deprimente - Devolve tudo ao mercado - v" + version);
             log("by Matheus Grijo ", ConsoleColor.Green);
             log(" ======= HALL OF FAME BOTMEX  ======= ");
             log(" - Lucas Sousa", ConsoleColor.Magenta);
