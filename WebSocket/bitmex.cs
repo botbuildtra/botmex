@@ -48,7 +48,7 @@ namespace WebSocket
                 catch(Exception e)
                 {
 
-                    MainClass.log("WebSocket crashed due to: " + e.Message, ConsoleColor.White,"error");
+                    MainClass.log("WebSocket crashed due to: " + e.Message + e.StackTrace, ConsoleColor.White,"error");
                     if (failed >= MainClass.maxWebsocketsFail)
                     {
                         MainClass.log("Reverting to standard rest api calls...", ConsoleColor.Red);

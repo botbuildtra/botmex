@@ -180,103 +180,56 @@ public class MainClass
             log("");
             log("Wallet: " + bitMEXApi.GetWallet());
 
-            lstIndicatorsAll.Add(new IndicatorADX());
-            lstIndicatorsAll.Add(new IndicatorMFI());
-            lstIndicatorsAll.Add(new IndicatorBBANDS());
-            lstIndicatorsAll.Add(new IndicatorCCI());
-            lstIndicatorsAll.Add(new IndicatorCMO());
-            lstIndicatorsAll.Add(new IndicatorDI());
-            lstIndicatorsAll.Add(new IndicatorDM());
-            lstIndicatorsAll.Add(new IndicatorMA());
-            lstIndicatorsAll.Add(new IndicatorMACD());
-            lstIndicatorsAll.Add(new IndicatorMOM());
-            lstIndicatorsAll.Add(new IndicatorPPO());
-            lstIndicatorsAll.Add(new IndicatorROC());
-            lstIndicatorsAll.Add(new IndicatorRSI());
-            lstIndicatorsAll.Add(new IndicatorSAR());
-            lstIndicatorsAll.Add(new IndicatorSTOCH());
-            lstIndicatorsAll.Add(new IndicatorSTOCHRSI());
-            lstIndicatorsAll.Add(new IndicatorTRIX());
-            lstIndicatorsAll.Add(new IndicatorULTOSC());
-            lstIndicatorsAll.Add(new IndicatorWILLR());
-            lstIndicatorsAll.Add(new IndicatorCAROL());
-            lstIndicatorsAll.Add(new IndicatorCAROLBEBENDO());
-            lstIndicatorsAll.Add(new IndicatorATR());
-            lstIndicatorsAll.Add(new IndicatorX());
-            lstIndicatorsAll.Add(new IndicatorOBV());
-            lstIndicatorsAll.Add(new IndicatorATRD());
-            lstIndicatorsAll.Add(new IndicatorMATENDENCY());
-
             foreach (var item in config["indicatorsEntry"])
             {
-                foreach (var item2 in lstIndicatorsAll)
+                IIndicator ind = LoadIndicator(item["name"].ToString().Trim().ToUpper());
+                Dictionary<string, string> cfg = new Dictionary<string, string>();
+                foreach (JProperty cfgitem in item)
                 {
-                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
-                    {
-                        Dictionary<string, string> cfg = new Dictionary<string, string>();
-                        foreach(JProperty cfgitem in item)
-                        {
-                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
-                            
-                        }
-                        item2.Setup(cfg);
-                        lstIndicatorsEntry.Add(item2);
-                    }
+                    cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+
                 }
+                ind.Setup(cfg);
+                lstIndicatorsEntry.Add(ind);
             }
 
             foreach (var item in config["indicatorsEntryCross"])
             {
-                foreach (var item2 in lstIndicatorsAll)
+                IIndicator ind = LoadIndicator(item["name"].ToString().Trim().ToUpper());
+                Dictionary<string, string> cfg = new Dictionary<string, string>();
+                foreach (JProperty cfgitem in item)
                 {
-                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
-                    {
-                        Dictionary<string, string> cfg = new Dictionary<string, string>();
-                        foreach (JProperty cfgitem in item)
-                        {
-                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+                    cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
 
-                        }
-                        item2.Setup(cfg);
-                        lstIndicatorsEntryCross.Add(item2);
-                    }
                 }
+                ind.Setup(cfg);
+                lstIndicatorsEntry.Add(ind);
             }
 
             foreach (var item in config["indicatorsEntryThreshold"])
             {
-                foreach (var item2 in lstIndicatorsAll)
+                IIndicator ind = LoadIndicator(item["name"].ToString().Trim().ToUpper());
+                Dictionary<string, string> cfg = new Dictionary<string, string>();
+                foreach (JProperty cfgitem in item)
                 {
-                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
-                    {
-                        Dictionary<string, string> cfg = new Dictionary<string, string>();
-                        foreach (JProperty cfgitem in item)
-                        {
-                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+                    cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
 
-                        }
-                        item2.Setup(cfg);
-                        lstIndicatorsEntryThreshold.Add(item2);
-                    }
                 }
+                ind.Setup(cfg);
+                lstIndicatorsEntry.Add(ind);
             }
 
             foreach (var item in config["indicatorsInvert"])
             {
-                foreach (var item2 in lstIndicatorsAll)
+                IIndicator ind = LoadIndicator(item["name"].ToString().Trim().ToUpper());
+                Dictionary<string, string> cfg = new Dictionary<string, string>();
+                foreach (JProperty cfgitem in item)
                 {
-                    if (item["name"].ToString().Trim().ToUpper() == item2.getName().Trim().ToUpper())
-                    {
-                        Dictionary<string, string> cfg = new Dictionary<string, string>();
-                        foreach (JProperty cfgitem in item)
-                        {
-                            cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
+                    cfg.Add(cfgitem.Name.ToString(), cfgitem.Value.ToString());
 
-                        }
-                        item2.Setup(cfg);
-                        lstIndicatorsInvert.Add(item2);
-                    }
                 }
+                ind.Setup(cfg);
+                lstIndicatorsEntry.Add(ind);
             }
 
             foreach (var item in config["strategyOptions"])
@@ -1072,6 +1025,60 @@ public class MainClass
             }
 
         }
+    }
+
+    public static IIndicator LoadIndicator(string name = "")
+    {
+        if (name == "")
+            throw new Exception("Invalid Indicator");
+
+        string IndClass = "Indicator" + name;
+
+        Type ind = Type.GetType(IndClass);
+        if (ind == null)
+            throw new Exception("Indicator: " + name + " Does not exist");
+
+        IIndicator loaded = (IIndicator)Activator.CreateInstance(ind);
+        return loaded;
+        /*if (strategy == null)
+        {
+            MainClass.log("Loading Strategies");
+            string[] strategies = Directory.GetFiles(location, "Strategy*.dll");
+            Type strat = Type.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+            log(operation.First().ToString().ToUpper() + operation.Substring(1));
+            foreach (string dllStrategy in strategies)
+            {
+                log(dllStrategy);
+                try
+                {
+                    log("Trying to load Strategy: " + dllStrategy);
+                    var assembly = Assembly.LoadFile(@dllStrategy);
+                    Type[] types = assembly.GetTypes();
+                    foreach (Type type in types)
+                    {
+                        if (type.ToString().Equals("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
+                        {
+                            strat = assembly.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    log("Cold not load strategy: " + dllStrategy + ex.ToString());
+                }
+            }
+
+
+            if (strat == null)
+            {
+                log("Estrategia não encontrada", ConsoleColor.Red);
+                System.Environment.Exit(1);
+            }
+            strategy = (IStrategies)Activator.CreateInstance(strat);
+        }
+        strategy.run();*/
+        return new IndicatorX();
     }
 
     public static void tests()

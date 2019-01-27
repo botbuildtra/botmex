@@ -7,7 +7,7 @@ using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
-//using static Google.Apis.Gmail.v1.GmailService;
+using static Google.Apis.Gmail.v1.GmailService;
 
 namespace Botmex.Strategies
 {

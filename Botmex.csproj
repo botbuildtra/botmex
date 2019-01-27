@@ -162,7 +162,7 @@
       <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html" />
     </ItemGroup>
     <PropertyGroup>
-      <OutputAssembly>$(OutputPath)\Botmex.exe</OutputAssembly>
+      <OutputAssembly>$(OutputPath)\Botmex-Packed.exe</OutputAssembly>
       <Merger Condition="('$(OS)' == 'Windows_NT')"> "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
       <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 "$(SolutionDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
     </PropertyGroup>

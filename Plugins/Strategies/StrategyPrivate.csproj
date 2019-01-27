@@ -57,6 +57,9 @@
     <Reference Include="Google.Apis.Gmail.v1">
       <HintPath>..\..\packages\Google.Apis.Gmail.v1.1.37.0.1480\lib\net45\Google.Apis.Gmail.v1.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StrategyCrosstrail.cs" />
