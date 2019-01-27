@@ -47,6 +47,10 @@
      {
         "name": "invertmarket",
         "value":"false"
+     },
+     {
+        "name": "averagedown",
+        "value": "true"
      }
   ],
   "indicatorsEntry":[
