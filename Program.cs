@@ -1040,45 +1040,6 @@ public class MainClass
 
         IIndicator loaded = (IIndicator)Activator.CreateInstance(ind);
         return loaded;
-        /*if (strategy == null)
-        {
-            MainClass.log("Loading Strategies");
-            string[] strategies = Directory.GetFiles(location, "Strategy*.dll");
-            Type strat = Type.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
-            log(operation.First().ToString().ToUpper() + operation.Substring(1));
-            foreach (string dllStrategy in strategies)
-            {
-                log(dllStrategy);
-                try
-                {
-                    log("Trying to load Strategy: " + dllStrategy);
-                    var assembly = Assembly.LoadFile(@dllStrategy);
-                    Type[] types = assembly.GetTypes();
-                    foreach (Type type in types)
-                    {
-                        if (type.ToString().Equals("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1)))
-                        {
-                            strat = assembly.GetType("Botmex.Strategies." + operation.First().ToString().ToUpper() + operation.Substring(1));
-                        }
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    log("Cold not load strategy: " + dllStrategy + ex.ToString());
-                }
-            }
-
-
-            if (strat == null)
-            {
-                log("Estrategia não encontrada", ConsoleColor.Red);
-                System.Environment.Exit(1);
-            }
-            strategy = (IStrategies)Activator.CreateInstance(strat);
-        }
-        strategy.run();*/
-        return new IndicatorX();
     }
 
     public static void tests()
