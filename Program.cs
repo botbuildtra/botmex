@@ -203,7 +203,7 @@ public class MainClass
 
                 }
                 ind.Setup(cfg);
-                lstIndicatorsEntry.Add(ind);
+                lstIndicatorsEntryCross.Add(ind);
             }
 
             foreach (var item in config["indicatorsEntryThreshold"])
@@ -216,7 +216,7 @@ public class MainClass
 
                 }
                 ind.Setup(cfg);
-                lstIndicatorsEntry.Add(ind);
+                lstIndicatorsEntryThreshold.Add(ind);
             }
 
             foreach (var item in config["indicatorsInvert"])
@@ -229,7 +229,7 @@ public class MainClass
 
                 }
                 ind.Setup(cfg);
-                lstIndicatorsEntry.Add(ind);
+                lstIndicatorsInvert.Add(ind);
             }
 
             foreach (var item in config["strategyOptions"])
