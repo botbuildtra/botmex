@@ -94,8 +94,8 @@
   "indicatorsInvert":[
      {
         "name":"MATENDENCY",
-        "high":185,
-        "low":130
+        "long":185,
+        "short":130
      }
   ]
 }
