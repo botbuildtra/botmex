@@ -1,8 +1,8 @@
 ﻿{
-  "key":"",
-  "secret":"",
   "domain":"https://www.bitmex.com",
   "websocketDomain":"wss://www.bitmex.com/realtime",
+  "key":"",
+  "secret":"",
   "websocketKey":"",
   "websocketSecret":"",
   "apidebug":"false",
