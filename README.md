@@ -6,27 +6,37 @@ Bot of Bitmex
 Example file "key.json" (Configuration)
 ```json
 {
-   "key":"",
-   "secret":"",
+   *** Domain websocketDomain devem ser alterados no caso de usar a Testnet.
    "domain":"https://www.bitmex.com",
    "websocketDomain":"wss://www.bitmex.com/realtime",
+   *** configurar aqui as API da sua conta na Bitmex, Criar dois pares key/secret um com permissão ORDER e outro sem.***
+   "key":"",
+   "secret":"",
    "websocketKey":"",
    "websocketSecret":"",
    "apidebug":"false",
+   *** Configuração de banco de dados, futuro ***
    "usedb":"disable",
    "dbcon":"",
    "dbquery":"",
+   *** Configuração do DashBoard***
+   "webserver":"enable",
+   "webserverConfig":"http://localhost:5325/bot/",
+   "webserverIntervalCapture":100000,
+   *** Coniguração de valores de Trading ***
    "pair":"XBTUSD",
    "contract":20,
    "profit":0.1,
    "fee":0.0001,
    "marketTaker":"disable",
    "limiteOrder":3,
+   **** Coniguração de controle de Risco ****
    "stoploss":0.5,
    "stoplosstype":"orderbook",
    "stoplossInterval":6,
    "stepvalue":4,
    "stopgain":10,
+   *** Coniguração de Operação ***
    "operation":"scalperv2",
    "obDiff":0.5,
    "tendencyBook":"disable",
@@ -37,9 +47,7 @@ Example file "key.json" (Configuration)
    "intervalOrder":50000,
    "timeGraph":"1m",
    "intervalCancelOrder":200,
-   "webserver":"enable",
-   "webserverConfig":"http://localhost:5325/bot/",
-   "webserverIntervalCapture":100000,
+   *** Configuração de Estrategias e Indicadores ***
    "carolatr":"enable",
    "atrvalue":50,
    "strategyOptions":[
