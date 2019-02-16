@@ -18,10 +18,10 @@ public class IndicatorMATENDENCY : IndicatorBase, IIndicator
     public void Setup(Dictionary<string,string> cfg )
     {
         if (cfg.ContainsKey("long"))
-            setHigh(int.Parse(cfg["long"]));
+            setHigh(double.Parse(cfg["long"]));
 
         if (cfg.ContainsKey("short"))
-            setLow(int.Parse(cfg["short"]));
+            setLow(double.Parse(cfg["short"]));
 
         if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
             timeGraph = cfg["timegraph"].Trim();

@@ -20,7 +20,7 @@ public class IndicatorATRD : IndicatorBase, IIndicator
             setPeriod(int.Parse(cfg["period"]));
 
         if (cfg.ContainsKey("limit"))
-            setLimit(int.Parse(cfg["limit"]));
+            setLimit(double.Parse(cfg["limit"]));
 
         if (cfg.ContainsKey("timegraph") && (cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h"))
             timeGraph = cfg["timegraph"].Trim();

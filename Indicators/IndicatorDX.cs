@@ -18,10 +18,10 @@ public class IndicatorDX : IndicatorBase, IIndicator
     public void Setup(Dictionary<string, string> cfg)
     {
         if (cfg.ContainsKey("high"))
-            setHigh(int.Parse(cfg["high"]));
+            setHigh(double.Parse(cfg["high"]));
 
         if (cfg.ContainsKey("low"))
-            setLow(int.Parse(cfg["low"]));
+            setLow(double.Parse(cfg["low"]));
 
         if (cfg.ContainsKey("period"))
             setPeriod(int.Parse(cfg["period"]));

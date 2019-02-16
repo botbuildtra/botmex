@@ -20,7 +20,7 @@ public class IndicatorADX : IndicatorBase, IIndicator
             setPeriod(int.Parse(cfg["period"]));
 
         if (cfg.ContainsKey("low"))
-            setLow(int.Parse(cfg["low"]));
+            setLow(double.Parse(cfg["low"]));
 
         if (cfg.ContainsKey("timegraph") && ( cfg["timegraph"].Trim() == "1m" || cfg["timegraph"].Trim() == "5m" || cfg["timegraph"].Trim() == "1h") )
             timeGraph = cfg["timegraph"].Trim();
