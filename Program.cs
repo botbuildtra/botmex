@@ -89,6 +89,7 @@ public class MainClass
     public static JContainer sharedConfig;
     public static bool SLRunning = false;
     public static bool RunTrigger = false;
+    public static bool Indicatorless = false;
     public static void Main(string[] args)
     {
         IStrategies strategy = null;
@@ -275,7 +276,7 @@ public class MainClass
             {
                 try
                 {
-                    if ( ( useWebSockets && RunTrigger ) || !useWebSockets )
+                    if ( Indicatorless ||  ( useWebSockets && RunTrigger ) || !useWebSockets )
                     {
                         positionContracts = getPosition(); // FIX CARLOS MORATO                                            
                         positionPrice = 0;
@@ -292,11 +293,11 @@ public class MainClass
 
                         #endregion
 
-                        if (automaticTendency)
+                        if (automaticTendency && !Indicatorless)
                             verifyTendency();
 
                         //GET CANDLES
-                        if (useWebSockets || getCandles(timeGraph, false, true))
+                        if (Indicatorless || useWebSockets || getCandles(timeGraph, false, true))
                         {
                             if (operation == "normal" || operation == "surf")
                             {
@@ -313,6 +314,10 @@ public class MainClass
                             else if (operation == "bingo")
                             {
                                 Bingo.run();
+                            }
+                            else if(operation == "pingpong")
+                            {
+                                PingPong.run();
                             }
                             else
                             {
@@ -953,7 +958,7 @@ public class MainClass
 
     }
 
-    public static void fixOrdersPosition(bool force = true)
+    public static void fixOrdersPosition(bool force = true, double forcePrice = 0, string exitText = "")
     {
         int oOrders = getOpenOrderQty();
         if (operation != "surf" && roeAutomatic && (Math.Abs(oOrders) < Math.Abs(positionContracts)))
@@ -973,9 +978,10 @@ public class MainClass
                 double actualPrice = Math.Abs(getPriceActual(side));
                 double priceContactsProfit = Math.Abs(Math.Floor(priceContacts + (priceContacts * (profit + fee) / 100)));
 
-
-
                 double price = priceContacts + stepValue;
+                if (forcePrice > 0)
+                    price = forcePrice;
+                
                 if(Math.Abs(oOrders) > 0 && Math.Abs(oOrders) < Math.Abs(positionContracts))
                 {
                     string orderid = getOpenOrderId();
@@ -989,7 +995,11 @@ public class MainClass
                 }
                 else
                 {
-                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, "Normal/Scalp Sell Exit Order", true);
+                    string eText = "Normal/Scalp Sell Exit Order";
+                    if (exitText != "")
+                        eText = exitText;
+
+                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, eText, true);
                     JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
                 }
@@ -1003,7 +1013,10 @@ public class MainClass
                 double actualPrice = Math.Abs(getPriceActual(side));
                 double priceContactsProfit = Math.Abs(Math.Floor(priceContacts - (priceContacts * (profit + fee) / 100)));
 
-                double price = priceContacts - stepValue;
+                double price = priceContacts + stepValue;
+                if (forcePrice > 0)
+                    price = forcePrice;
+
                 if (Math.Abs(oOrders) > 0 && Math.Abs(oOrders) < Math.Abs(positionContracts))
                 {
                     string orderid = getOpenOrderId();
@@ -1017,7 +1030,11 @@ public class MainClass
                 }
                 else
                 {
-                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, "Normal/Scalp Buy Exit Order", true);
+                    string eText = "Normal/Scalp Buy Exit Order";
+                    if (exitText != "")
+                        eText = exitText;
+
+                    String json = bitMEXApi.PostOrderPostOnly(pair, side, price, Math.Abs(qntContacts), force, marketTaker, eText, true);
                     JContainer config2 = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                     log(json);
                 }

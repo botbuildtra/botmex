@@ -133,6 +133,7 @@
     <Compile Include="Strategies\ScalperV2.cs" />
     <Compile Include="Indicators\IndicatorATRD.cs" />
     <Compile Include="Indicators\IndicatorMATENDENCY.cs" />
+    <Compile Include="Strategies\PingPong.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
