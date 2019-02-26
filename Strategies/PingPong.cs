@@ -10,12 +10,16 @@ namespace Botmex.Strategies
         public static void run()
         {
             MainClass.Indicatorless = true;
+            bool waitForever = false;
             if (MainClass.strategyOptions.Count < 2 
                 || !MainClass.strategyOptions.ContainsKey("buyat") 
                 || !MainClass.strategyOptions.ContainsKey("sellat") )
             {
                 throw new Exception("Please check if buyat and sellat are set");
             }
+
+            if (MainClass.strategyOptions.ContainsKey("waitforever"))
+                waitForever = bool.Parse(MainClass.strategyOptions["waitforever"]);
 
 
             int maxContracts = MainClass.qtdyContacts;
@@ -33,15 +37,32 @@ namespace Botmex.Strategies
                 }
                 JContainer order = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
                 BitMEX.Order bmOrder = MainClass.bitMEXApi.GetOrderById(order["orderID"].ToString());
-                for (int i = 0; i < 20; i++)
+                if( waitForever )
                 {
-                    Thread.Sleep(6000);
-                    bmOrder = MainClass.bitMEXApi.GetOrderById(order["orderID"].ToString());
-                    if (Math.Abs(MainClass.getPosition()) > 0 && bmOrder.OrdStatus == "Filled")
+                    while(true)
                     {
-                        MainClass.fixOrdersPosition(true, sellAt, "Ping Pong Sell Exit Order");
-                        MainClass.runSL(null);
-                        break;
+                        Thread.Sleep(6000);
+                        bmOrder = MainClass.bitMEXApi.GetOrderById(order["orderID"].ToString());
+                        if (Math.Abs(MainClass.getPosition()) > 0 && bmOrder.OrdStatus == "Filled")
+                        {
+                            MainClass.fixOrdersPosition(true, sellAt, "Ping Pong Sell Exit Order");
+                            MainClass.runSL(null);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Thread.Sleep(6000);
+                        bmOrder = MainClass.bitMEXApi.GetOrderById(order["orderID"].ToString());
+                        if (Math.Abs(MainClass.getPosition()) > 0 && bmOrder.OrdStatus == "Filled")
+                        {
+                            MainClass.fixOrdersPosition(true, sellAt, "Ping Pong Sell Exit Order");
+                            MainClass.runSL(null);
+                            break;
+                        }
                     }
                 }
                 if (Math.Abs(MainClass.getPosition()) == 0 || bmOrder.OrdStatus != "Filled")
