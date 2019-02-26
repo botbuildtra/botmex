@@ -364,7 +364,7 @@ public class MainClass
                         RunTrigger = false;
                     }
 
-                    if(useWebSockets)
+                    if(!Indicatorless && useWebSockets)
                     {
                         Thread.Sleep(20);
                     }
