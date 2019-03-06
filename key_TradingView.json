@@ -1,0 +1,72 @@
+﻿{
+  "key":"Order_Key",
+  "secret":"Order Secret",
+  "domain":"https://www.bitmex.com",
+  "websocketDomain":"wss://www.bitmex.com/realtime",
+  "websocketKey":"Standard_Key",
+  "websocketSecret":"Standard_Scret",
+  "apidebug":"false",
+  "usedb":"disable",
+  "dbcon":"",
+  "dbquery":"",
+  "pair":"XBTUSD",
+  "contract":20,
+  "profit":0.1,
+  "fee":0.0001,
+  "marketTaker":"disable",
+  "limiteOrder":1,
+  "stoploss":0.5,
+  "stoplosstype":"orderbook",
+  "stoplossInterval":6,
+  "stepvalue":4,
+  "stopgain":10,
+  "operation":"Tradingview",
+  "obDiff":0.5,
+  "tendencyBook":"disable",
+  "long":"enable",
+  "short":"enable",
+  "roe":"automatic",
+  "interval":14500,
+  "intervalOrder":50000,
+  "timeGraph":"1m",
+  "intervalCancelOrder":200,
+  "webserver":"enable",
+  "webserverConfig":"http://localhost:5325/bot/",
+  "webserverIntervalCapture":100000,
+  "carolatr":"enable",
+  "atrvalue":50,
+  "strategyOptions":[
+ {
+        "name":"labelid",
+        "value":"Label_123456789"
+     },
+     {
+        "name":"buytrigger",
+        "value":"Buy!!!"
+     },
+     {
+        "name":"selltrigger",
+        "value":"Sell!!!"
+     },
+   {
+    "name":"usermail",
+    "value":"yormail@gmail.com"
+   }    
+    
+  ],
+  "indicatorsEntry":[
+     
+  ],
+  "indicatorsEntryCross":[
+
+  ],
+  "indicatorsEntryDecision":[
+
+  ],
+  "indicatorsEntryThreshold":[
+     
+  ],
+  "indicatorsInvert":[
+     
+  ]
+}
