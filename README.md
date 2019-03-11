@@ -3,6 +3,10 @@
 # botmex
 Bot of Bitmex
 
+[Wiki do projeto]: https://github.com/tperalta82/botmex/wiki
+
+
+
 Guia de configuração
 A configuração do BOT é feita através do arquivo "key.json"
 
@@ -141,9 +145,9 @@ Configuração de Estratégias e Indicadores
      "name":"RSI",
 
      "period":9,
-
+    
      "high":70,
-
+    
      "low":30
 
   },
@@ -151,9 +155,9 @@ Configuração de Estratégias e Indicadores
      "name":"MFI",
 
      "period":20,
-
+    
      "high":70,
-
+    
      "low":30
 
   },
@@ -162,9 +166,9 @@ Configuração de Estratégias e Indicadores
      "name":"CCI",
 
      "period":20,
-
+    
      "high":160,
-
+    
      "low":-160
 
   },
@@ -173,7 +177,7 @@ Configuração de Estratégias e Indicadores
      "name":"MATENDENCY",
 
      "long":185,
-
+    
      "short":130
 
   }
@@ -193,7 +197,7 @@ Configuração de Estratégias e Indicadores
      "name":"ATRD",
 
      "period":7,
-
+    
      "limit":50
   }
 ],
@@ -204,7 +208,7 @@ Configuração de Estratégias e Indicadores
      "name":"MATENDENCY",
 
      "high":185,
-
+    
      "low":130
 
   }
@@ -215,3 +219,5 @@ Configuração de Estratégias e Indicadores
 
 
 
+
+```
