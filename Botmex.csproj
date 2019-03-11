@@ -137,6 +137,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\key_scalperv2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\key_TradingView.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Web\footer.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -146,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="key.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -166,8 +173,8 @@
       <Merger Condition="('$(OS)' == 'Windows_NT')"> "$(ProjectDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
       <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 "$(ProjectDir)\packages\ILRepack.2.0.16\tools\ILRepack.exe"</Merger>
     </PropertyGroup>
-    <Message Text="MERGING: @(MergeAssemblies-&gt;'%(Filename)') into $(OutputAssembly)" Importance="High" />
-    <Exec Command="$(Merger) /lib:packages/Google.Apis.Auth.1.37.0/lib/net45 /lib:packages/Google.Apis.Core.1.37.0/lib/net45 /lib:/usr/lib/mono/4.7.1-api/ /lib:packages/Google.Protobuf.3.6.1/lib/net45 /lib:packages/Newtonsoft.Json.12.0.1/lib/net45 /lib:/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/ /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies-&gt;'&quot;%(RelativeDir)%(Filename)%(Extension)&quot;', ' ')" />
+    <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
+    <Exec Command="$(Merger) /lib:packages/Google.Apis.Auth.1.37.0/lib/net45 /lib:packages/Google.Apis.Core.1.37.0/lib/net45 /lib:/usr/lib/mono/4.7.1-api/ /lib:packages/Google.Protobuf.3.6.1/lib/net45 /lib:packages/Newtonsoft.Json.12.0.1/lib/net45 /lib:/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/ref/netcoreapp2.1/ /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(RelativeDir)%(Filename)%(Extension)&quot;', ' ')" />
     <Copy SourceFiles="@(CopyWebFiles)" DestinationFolder="$(OutputPath)/Packed/Web" />
     <Copy SourceFiles="@(CopyBinFiles)" DestinationFolder="$(OutputPath)/Packed" />
     <MakeDir Directories="$(OutputPath)/Deploy" />
