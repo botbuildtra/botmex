@@ -168,7 +168,7 @@
     <ItemGroup>
       <MergeAssemblies Include="bin\$(Configuration)\Botmex.exe" />
       <MergeAssemblies Include="bin\$(Configuration)\*.dll" />
-      <CopyBinFiles Include="$(OutputPath)/Botmex-Packed.exe;key.json" />
+      <CopyBinFiles Include="$(OutputPath)/Botmex-Packed.exe;key.json;key_TradingView.json;key_scalperv2.json;README.md" />
       <CopyWebFiles Include="$(OutputPath)/Web/header.html;$(OutputPath)/Web/footer.html" />
     </ItemGroup>
     <PropertyGroup>
